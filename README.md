@@ -1,20 +1,25 @@
-# NRM LimeSurvey applications, ready for deployment on OpenShift
+# NRM LimeSurvey
 
-OpenShift templates for LimeSurvey, used within Natural Resources Ministries.  [LimeSurvey](https://www.limesurvey.org/) is an open-source PHP application with a relational database for persistent data.  MariaDB was chosen over the usual CSI Lab PostgreSQL due to LimeSurvey supporting DB backup out-of-the-box with MariaDB, but not PostgreSQL.
 
-The application pod has been constrained to `maxReplicas=1` to prevent issues with multiple pods with different (possiblye conflicting) Configuration Files against the same single database.
+ applications, ready for deployment on OpenShift
+
+OpenShift templates for LimeSurvey, used within Natural Resources Ministries and ready for deployment on [OpenShift](https://www.openshift.com/).  [LimeSurvey](https://www.limesurvey.org/) is an open-source PHP application with a relational database for persistent data.  MariaDB was chosen over the usual CSI Lab PostgreSQL due to LimeSurvey supporting DB backup out-of-the-box with MariaDB, but not PostgreSQL.
+
+The application pod has been constrained to `maxReplicas=1` to prevent issues with multiple pods with different (possibly conflicting) Configuration Files against the same single database.
 
 ## Files
 
-`openshift/nrm-survey.env`: Default parameters for DB size and application upload folder size.
-`openshift/mariadb.dc.json`: Deployment configuration for MariaDB database.
+* `openshift/mariadb.dc.json`: Deployment configuration for MariaDB database
+* `openshift/limesurvey.dc.json`: Deployment configuration for LimeSurvey PHP application
 
 ## Build
 
-To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream repo
+To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream code repository.
+
 `oc -n b7cg3n-tools new-build openshift/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git --name=limesurvey-app`
 
 To delete previous builds:
+
 `LimeSurvey (nrm_baseline)]$ oc -n b7cg3n-tools delete bc/limesurvey-app` 
 
 All build images are vanilla out-of-the-box LimeSurvey code.
@@ -28,18 +33,18 @@ Deploy the DB using the survey-specific parameter (e.g. `mds`):
 
 All DB deployments are based on the out-of-the-box [OpenShift Database Image](https://docs.openshift.com/container-platform/3.11/using_images/db_images/mariadb.html).
 
-*_Reset_*
+#### Reset
 
-To redeploy *just* the database, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:
+To redeploy *just* the database, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
 `oc -n b7cg3n-deploy delete secret/mds-mariadb pvc/mds-mariadb dc/mds-mariadb svc/mds-mariadb`
 
 ### Application
-Deploy the Application using the survey-specific parameter (e.g. `mds`):
+Deploy the Application using the survey-specific parameter (e.g. `mds`):  
 `oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey.dc.json -p SURVEY_NAME=mds`
 
-*_Reset_*
+#### Reset
 
-To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:
+To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
 `oc -n b7cg3n-deploy delete pvc/mds-app-uploads dc/mds-app svc/mds route/mds`
 
 ## Perform initial LimeSurvey installation
@@ -47,9 +52,10 @@ To redeploy *just* the application, first delete the deployed objects from the l
 ### Copy over the NRM-specific Configuration File
 
 Use `oc cp` to copy the config.php file, with the correct SURVEY_NAME, such as:
+
 `oc -n b7cg3n-deploy cp openshift/application/config/config.php $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}'):/opt/app-root/src/application/config/`
 
-NOTE: This file will not exist yet, as the wizard has not yet been run.  
+NOTE: This file will not exist yet, as the initial install has not yet been run.  
 
 The `config.php` file has NRM-specific details such as the SMTP host and settings, and reply-to email addresses.
 
@@ -59,12 +65,12 @@ The `config.php` file has NRM-specific details such as the SMTP host and setting
 ```
 oc rsh $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}')
 cd application/commands/
-php console.php install admin sfjgilsdjsS! "Gary Wong"  Gary.T.Wong@gov.bc.ca
+php console.php install admin sfxzgsdjsS! "John Smith"  Joe.Fake.Person@gov.bc.ca
 ```
 
 2. Navigate the out-of-box GUI wizard by opening the route in a browser (e.g. https://mds-survey.pathfinder.gov.bc.ca). 
 
-Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  For example:
+Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  For example:   
 https://mds-survey.pathfinder.gov.bc.ca/index.php/admin
 
 
