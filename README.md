@@ -29,7 +29,7 @@ All build images are vanilla out-of-the-box LimeSurvey code.
 ### Database
 Deploy the DB using the survey-specific parameter (e.g. `mds`):
 
-`oc -n b7cg3n-deploy new-app -l app=mds --file=./openshift/mariadb.dc.json -p SURVEY_NAME=mds`
+`oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=mds`
 
 All DB deployments are based on the out-of-the-box [OpenShift Database Image](https://docs.openshift.com/container-platform/3.11/using_images/db_images/mariadb.html).
 
