@@ -1,0 +1,258 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "nrms-limesurvey-dc"
+    },
+    "parameters": [
+        {
+            "description": "The short-name of the Survey Service, lower-case with hyphen.",
+            "displayName": "Survey Name",
+            "name": "SURVEY_NAME",
+            "required": true,
+            "value": "mds"
+        },  
+        {
+            "description": "The OpenShift Namespace where the ImageStream resides.",
+            "displayName": "Namespace",
+            "name": "NAMESPACE",
+            "value": "b7cg3n-tools"
+        },
+        {
+            "description": "The disk space reserved for LimeSurvey uploads.",
+            "displayName": "LimeSurvey Upload Folder size",
+            "name": "LIMESURVEY_UPLOAD_FOLDER_CAPACITY",
+            "value": "1Gi"
+        }        
+    ],    
+    "objects": [
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${SURVEY_NAME}-app-uploads",
+                "labels": {
+                    "app": "${SURVEY_NAME}"
+                },
+                "annotations": {
+                    "template.openshift.io.bcgov/create": "true",
+                    "volume.beta.kubernetes.io/storage-provisioner": "kubernetes.io/glusterfs"
+                },
+                "finalizers": [
+                    "kubernetes.io/pvc-protection"
+                ]
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteMany"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "${LIMESURVEY_UPLOAD_FOLDER_CAPACITY}"
+                    }
+                },
+                "storageClassName": "gluster-file"
+            }
+        },        
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${SURVEY_NAME}-app",
+                "generation": 1,
+                "labels": {
+                    "app": "${SURVEY_NAME}"
+                },
+                "annotations": {
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Rolling",
+                    "rollingParams": {
+                        "updatePeriodSeconds": 1,
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600,
+                        "maxUnavailable": "25%",
+                        "maxSurge": "25%"
+                    },
+                    "resources": {},
+                    "activeDeadlineSeconds": 21600
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "limesurvey-app"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${NAMESPACE}",
+                                "name": "limesurvey-app:latest"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "test": false,
+                "selector": {
+                    "app": "${SURVEY_NAME}",
+                    "deploymentconfig": "${SURVEY_NAME}-app"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "${SURVEY_NAME}",
+                            "deploymentconfig": "${SURVEY_NAME}-app"
+                        },
+                        "annotations": {
+                        }
+                    },
+                    "spec": {
+                        "volumes": [
+                            {
+                                "name": "${SURVEY_NAME}-app-uploads",
+                                "persistentVolumeClaim": {
+                                    "claimName": "${SURVEY_NAME}-app-uploads"
+                                }
+                            }
+                        ],
+                        "containers": [
+                            {
+                                "name": "limesurvey-app",
+                                "image": "docker-registry.default.svc:5000/b7cg3n-tools/limesurvey-app@sha256:b20a6cbcb680782a21d89665ad3f59084af8869db60d75df3088d92987b6e28c",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 8443,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "MYSQL_USERNAME",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "key": "database-user"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "MYSQL_PASSWORD",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "key": "database-password"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "MYSQL_DB_NAME",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "key": "database-name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "MYSQL_DB_HOST",
+                                        "value": "${SURVEY_NAME}-mariadb"
+                                    },
+                                    {
+                                        "name": "MYSQL_PORT",
+                                        "value": "3306"
+                                    }                                                                     
+                                ],
+                                "resources": {},
+                                "maxReplicas": 1,
+                                "volumeMounts": [
+                                    {
+                                        "name": "${SURVEY_NAME}-app-uploads",
+                                        "mountPath": "/var/lib/limesurvey/upload"
+                                    }
+                                ],    
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "imagePullPolicy": "Always"
+                            }
+                        ],                          
+                        "restartPolicy": "Always",
+                        "terminationGracePeriodSeconds": 30,
+                        "dnsPolicy": "ClusterFirst",
+                        "securityContext": {},                           
+                        "schedulerName": "default-scheduler"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${SURVEY_NAME}",
+                "labels": {
+                    "app": "${SURVEY_NAME}"
+                },
+                "annotations": {
+                    "description": "Exposes and load balances the application pods"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "8080-tcp",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "app": "${SURVEY_NAME}",
+                    "deploymentconfig": "${SURVEY_NAME}-app"
+                },
+                "type": "ClusterIP",
+                "sessionAffinity": "None"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${SURVEY_NAME}",
+                "creationTimestamp": null,
+                "labels": {
+                    "app": "${SURVEY_NAME}"
+                }
+            },
+            "spec": {
+                "host": "${SURVEY_NAME}-survey.pathfinder.gov.bc.ca",
+                "to": {
+                    "kind": "Service",
+                    "name": "${SURVEY_NAME}",
+                    "weight": 100
+                },
+                "port": {
+                    "targetPort": "8080-tcp"
+                },
+                "tls": {
+                    "termination": "edge"
+                },        
+                "wildcardPolicy": "None"
+            }
+        }
+    ]
+}
