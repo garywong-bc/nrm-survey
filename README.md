@@ -1,16 +1,12 @@
 # NRM LimeSurvey
 
-
- applications, ready for deployment on OpenShift
-
 OpenShift templates for LimeSurvey, used within Natural Resources Ministries and ready for deployment on [OpenShift](https://www.openshift.com/).  [LimeSurvey](https://www.limesurvey.org/) is an open-source PHP application with a relational database for persistent data.  MariaDB was chosen over the usual CSI Lab PostgreSQL due to LimeSurvey supporting DB backup out-of-the-box with MariaDB, but not PostgreSQL.
-
-The application pod has been constrained to `maxReplicas=1` to prevent issues with multiple pods with different (possibly conflicting) Configuration Files against the same single database.
 
 ## Files
 
-* `openshift/mariadb.dc.json`: Deployment configuration for MariaDB database
-* `openshift/limesurvey.dc.json`: Deployment configuration for LimeSurvey PHP application
+* (openshift/mariadb.dc.json): Deployment configuration for MariaDB database
+* (openshift/limesurvey.dc.json): Deployment configuration for LimeSurvey PHP application
+* (application/config/config.php): Configuration used during initial install of LimeSurvey.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 
 ## Build
 
@@ -45,34 +41,21 @@ Deploy the Application using the survey-specific parameter (e.g. `mds`):
 #### Reset
 
 To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
-`oc -n b7cg3n-deploy delete pvc/mds-app-uploads dc/mds-app svc/mds route/mds`
+`oc -n b7cg3n-deploy delete cm/mds-app-config pvc/mds-app-uploads dc/mds-app svc/mds route/mds`
 
 ## Perform initial LimeSurvey installation
 
-### Copy over the NRM-specific Configuration File
-
-Use `oc cp` to copy the config.php file, with the correct SURVEY_NAME, such as:
-
-`oc -n b7cg3n-deploy cp openshift/application/config/config.php $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}'):/opt/app-root/src/application/config/`
-
-NOTE: This file will not exist yet, as the initial install has not yet been run.  
-
-The `config.php` file has NRM-specific details such as the SMTP host and settings, and reply-to email addresses.
-
-### Run the command-line install
-
-1. Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
+Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
 ```
 oc rsh $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}')
 cd application/commands/
-php console.php install admin sfxzgsdjsS! "John Smith"  Joe.Fake.Person@gov.bc.ca
+php console.php install admin sfxzgsdjsS! Administrator Joe.Fake.Person@gov.bc.ca
 ```
 
-2. Navigate the out-of-box GUI wizard by opening the route in a browser (e.g. https://mds-survey.pathfinder.gov.bc.ca). 
-
+## Log into the LimeSurvey installation
+ 
 Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  For example:   
 https://mds-survey.pathfinder.gov.bc.ca/index.php/admin
-
 
 ## FAQ
 
@@ -83,10 +66,24 @@ https://mds-survey.pathfinder.gov.bc.ca/index.php/admin
 
 `oc -n b7cg3n-deploy delete all,secret,configmap,pvc -l app=mds`
 
+3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
+    a. update [./application/config/config.php]
+    b. create the ConfigMap, with the correct SURVEY_NAME, such as:
+    `oc -n b7cg3n-deploy create configmap mds-app-config --from-file=config.php=./application/config/config.php`
+    c. let OpenShift generate the specification, with the correct SURVEY_NAME, such as:
+    `oc -n b7cg3n-deploy export configmap mds-app-config --as-template=nrm-survey-configmap -o json`
+    d. copy-and-paste the ConfigMap specification, updating the entry in ()./openshift/limesurvey.dc.json)
+    e. redeploy this file so that all running pods have the same configuration
+
+NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [./openshift/limesurvey.dc.json] file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
+
+4.  The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is alwasy deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
+
+
 ## TO DO
 
 * check for persistent upload between re-deploys
-* check for image triggers which force a reploy
+* check for image triggers which force a reploy (image tags.. latest -> v1)
 * health checks for each of the two containers
 * appropriate resource limits
 * test DB backup/restore and transfer
