@@ -61,7 +61,7 @@ The `config.php` file has NRM-specific details such as the SMTP host and setting
 
 ### Run the command-line install
 
-1. Run the (command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
+1. Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
 ```
 oc rsh $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}')
 cd application/commands/
