@@ -198,7 +198,7 @@
                                 "volumeMounts": [
                                     {
                                         "name": "${SURVEY_NAME}-app-uploads",
-                                        "mountPath": "/var/lib/limesurvey/upload"
+                                        "mountPath": "/var/lib/limesurvey"
                                     },
                                     {
                                         "name": "${SURVEY_NAME}-app-config",

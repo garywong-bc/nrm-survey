@@ -23,7 +23,7 @@ All build images are vanilla out-of-the-box LimeSurvey code.
 ## Deploy
 
 ### Database
-Deploy the DB using the survey-specific parameter (e.g. `mds`):
+Deploy the DB using the correct SURVEY_NAME parameter (e.g. `mds`):
 
 `oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=mds`
 
@@ -43,13 +43,18 @@ Deploy the Application using the survey-specific parameter (e.g. `mds`):
 To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
 `oc -n b7cg3n-deploy delete cm/mds-app-config pvc/mds-app-uploads dc/mds-app svc/mds route/mds`
 
+## Copy over Upload folders
+
+As OpenShift pods can get redeployed at any time, we copy all `/upload` folders and files onto our mounted PersistentVolume. Use `oc rsync` with the correct SURVEY_NAME such as:
+`oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey`
+
 ## Perform initial LimeSurvey installation
 
 Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
 ```
-oc rsh $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}')
+oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}')
 cd application/commands/
-php console.php install admin sfxzgsdjsS! Administrator Joe.Fake.Person@gov.bc.ca
+php console.php install admin <password> Administrator <>@gov.bc.ca
 ```
 
 ## Log into the LimeSurvey installation
@@ -77,7 +82,29 @@ https://mds-survey.pathfinder.gov.bc.ca/index.php/admin
 
 NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [./openshift/limesurvey.dc.json] file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
 
-4.  The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is alwasy deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
+If the new version of LimeSurvey has changed `update` folder changes, sync these changes to [./upload]
+
+4. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
+
+5. To dynamically get the pod name of the running application, this is helpful:
+   `oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}'`
+  
+   For each specific survey, it may be useful to set an environment variable for the deployment, for example:
+
+```
+export S=mds
+oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=$S
+oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey.dc.json -p SURVEY_NAME=$S
+
+oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey
+
+oc rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}')
+cd application/commands/
+php console.php install admin sfxzgsdjsS! Administrator Gary.T.Wong@gov.bc.ca
+exit 
+
+unset S
+```
 
 
 ## TO DO
