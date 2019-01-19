@@ -29,7 +29,7 @@ All DB deployments are based on the out-of-the-box [OpenShift Database Image](ht
 #### Reset
 
 To redeploy *just* the database, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
-`oc -n b7cg3n-deploy delete secret/mds-mariadb pvc/mds-mariadb dc/mds-mariadb svc/mds-mariadb`
+`oc -n b7cg3n-deploy delete secret/mds-mariadb dc/mds-mariadb svc/mds-mariadb pvc/mds-mariadb `
 
 ### Application
 Deploy the Application using the survey-specific parameter (e.g. `mds`):  
@@ -38,11 +38,11 @@ Deploy the Application using the survey-specific parameter (e.g. `mds`):
 #### Reset
 
 To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
-`oc -n b7cg3n-deploy delete cm/mds-app-config pvc/mds-app-uploads dc/mds-app svc/mds route/mds`
+`oc -n b7cg3n-deploy delete cm/mds-app-config dc/mds-app svc/mds route/mds pvc/mds-app-uploads `
 
-## Copy over Upload folders
+## Copy over Upload folder
 
-As OpenShift pods can get redeployed at any time, we copy all `/upload` folders and files onto our mounted PersistentVolume. Use `oc rsync` with the correct SURVEY_NAME such as:
+As OpenShift pods can get redeployed at any time, we copy all `/upload` folders and files onto our mounted PersistentVolume. Use `oc rsync` with the correct SURVEY_NAME such as:  
 `oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep mds-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey`
 
 ## Perform initial LimeSurvey installation
@@ -98,7 +98,7 @@ oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey.dc.json -p SURVEY_NAME
 
 oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey
 
-oc rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}')
+oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}')
 cd application/commands/
 php console.php install admin sfxzgsdjsS! Administrator Gary.T.Wong@gov.bc.ca
 exit 
@@ -109,9 +109,11 @@ unset S
 
 ## TO DO
 
-* check for persistent upload between re-deploys
+
 * check for image triggers which force a reploy (image tags.. latest -> v1)
 * health checks for each of the two containers
 * appropriate resource limits
 * test DB backup/restore and transfer
 * test out application upgrade (e.g. LimeSurvey updates their codebase)
+
+* check for persistent upload between re-deploys DONE
