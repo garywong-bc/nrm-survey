@@ -4,18 +4,16 @@ OpenShift templates for LimeSurvey, used within Natural Resources Ministries and
 
 ## Files
 
-* (openshift/mariadb.dc.json): Deployment configuration for MariaDB database
-* (openshift/limesurvey.dc.json): Deployment configuration for LimeSurvey PHP application
-* (application/config/config.php): Configuration used during initial install of LimeSurvey.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
+* [openshift/mariadb.dc.json]: Deployment configuration for MariaDB database
+* [openshift/limesurvey.dc.json]: Deployment configuration for LimeSurvey PHP application
+* [application/config/config.php]: Configuration used during initial install of LimeSurvey.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 
 ## Build
 
-To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream code repository.
-
+To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream code repository.  
 `oc -n b7cg3n-tools new-build openshift/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git --name=limesurvey-app`
 
-To delete previous builds:
-
+To delete previous builds:  
 `LimeSurvey (nrm_baseline)]$ oc -n b7cg3n-tools delete bc/limesurvey-app` 
 
 All build images are vanilla out-of-the-box LimeSurvey code.
@@ -23,8 +21,7 @@ All build images are vanilla out-of-the-box LimeSurvey code.
 ## Deploy
 
 ### Database
-Deploy the DB using the correct SURVEY_NAME parameter (e.g. `mds`):
-
+Deploy the DB using the correct SURVEY_NAME parameter (e.g. `mds`):  
 `oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=mds`
 
 All DB deployments are based on the out-of-the-box [OpenShift Database Image](https://docs.openshift.com/container-platform/3.11/using_images/db_images/mariadb.html).
@@ -59,28 +56,31 @@ php console.php install admin <password> Administrator <>@gov.bc.ca
 
 ## Log into the LimeSurvey installation
  
-Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  For example:   
-https://mds-survey.pathfinder.gov.bc.ca/index.php/admin
+Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  Use the correct SURVEY_NAME in the URL, for example:   
+[https://mds-survey.pathfinder.gov.bc.ca/index.php/admin]
 
 ## FAQ
 
 1. To login the database, open the DB pod terminal (via OpenShift Console or `oc rsh`) and enter:
 `MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE`
 
-2. To reset all deployed objects (this will destroy all data).  Only do this on a botched install or if you have the DB backed up and ready to restore into the new wiped database.
-
+2. To reset all deployed objects (this will destroy all data).  Only do this on a botched install or if you have the DB backed up and ready to restore into the new wiped database.  
 `oc -n b7cg3n-deploy delete all,secret,configmap,pvc -l app=mds`
 
-3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
-    a. update [./application/config/config.php]
-    b. create the ConfigMap, with the correct SURVEY_NAME, such as:
-    `oc -n b7cg3n-deploy create configmap mds-app-config --from-file=config.php=./application/config/config.php`
-    c. let OpenShift generate the specification, with the correct SURVEY_NAME, such as:
-    `oc -n b7cg3n-deploy export configmap mds-app-config --as-template=nrm-survey-configmap -o json`
-    d. copy-and-paste the ConfigMap specification, updating the entry in ()./openshift/limesurvey.dc.json)
-    e. redeploy this file so that all running pods have the same configuration
+3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).  
+    a. update [./application/config/config.php]  
+    b. create the ConfigMap, with the correct SURVEY_NAME, such as:  
+    `oc -n b7cg3n-deploy create configmap mds-app-config --from-file=config.php=./application/config/config.php`  
+    c. let OpenShift generate the specification, with the correct SURVEY_NAME, such as:  
+    `oc -n b7cg3n-deploy export configmap mds-app-config --as-template=nrm-survey-configmap -o json`  
+    d. copy-and-paste the ConfigMap specification, updating the entry in [./openshift/limesurvey.dc.json]  
+    e. redeploy this file so that all running pods have the same configuration  
 
-NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [./openshift/limesurvey.dc.json] file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
+NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [DeploymentConfig](./openshift/limesurvey.dc.json) file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
+
+If the new version of LimeSurvey has changed `update` folder changes, sync these changes to [Uploads Folder]()./upload)
+
+4. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
 
 If the new version of LimeSurvey has changed `update` folder changes, sync these changes to [./upload]
 
