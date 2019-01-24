@@ -2,7 +2,7 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "nrms-mariadb-dc"
+        "name": "nrms-postgresql-dc"
     },
     "parameters": [
         {
@@ -20,21 +20,13 @@
             "value": "512Mi"
         },                
         {
-            "description": "Password for the MariaDB connection user.",
-            "displayName": "MariaDB Connection Password",
+            "description": "Password for the PostgreSQL connection user.",
+            "displayName": "PostgreSQL Connection Password",
             "from": "[a-zA-Z0-9]{16}",
             "generate": "expression",
-            "name": "MYSQL_PASSWORD",
+            "name": "POSTGRESQL_PASSWORD",
             "required": true
-        },
-        {
-            "description": "Password for the MariaDB root user.",
-            "displayName": "MariaDB root Password",
-            "from": "[a-zA-Z0-9]{16}",
-            "generate": "expression",
-            "name": "MYSQL_ROOT_PASSWORD",
-            "required": true
-        },      
+        },  
         {
             "description": "Volume space available for data, e.g. 512Mi, 2Gi.",
             "displayName": "Database Volume Capacity",
@@ -42,40 +34,36 @@
             "required": true,
             "value": "1Gi"
         }
-    ],
+    ],    
     "objects": [
         {
             "kind": "Secret",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${SURVEY_NAME}-mariadb",
+                "name": "${SURVEY_NAME}-postgresql",
                 "labels": {
-                    "app": "${SURVEY_NAME}",
-                    "template": "mariadb-persistent-template"
+                    "app": "${SURVEY_NAME}"
                 },
                 "annotations": {
                     "description": "Database credentials and name.",
                     "template.openshift.io/expose-database_name": "{.data['database-name']}",
                     "template.openshift.io/expose-password": "{.data['database-password']}",
-                    "template.openshift.io/expose-root_password": "{.data['database-root-password']}",
                     "template.openshift.io/expose-username": "{.data['database-user']}"
                 }
             },
             "stringData": {
                 "database-name": "${SURVEY_NAME}",
-                "database-password": "${MYSQL_PASSWORD}",
-                "database-root-password": "${MYSQL_ROOT_PASSWORD}",
+                "database-password": "${POSTGRESQL_PASSWORD}",
                 "database-user": "${SURVEY_NAME}"
             }
-        },
+        },        
         {
             "kind": "PersistentVolumeClaim",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${SURVEY_NAME}-mariadb",
+                "name": "${SURVEY_NAME}-postgresql",
                 "labels": {
-                    "app": "${SURVEY_NAME}",
-                    "template": "mariadb-persistent-template"
+                    "app": "${SURVEY_NAME}"
                 },
                 "annotations": {
                     "template.openshift.io.bcgov/create": "true",
@@ -96,12 +84,12 @@
                 },
                 "storageClassName": "gluster-file-db"
             }
-        },             
+        },  
         {
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name":"${SURVEY_NAME}-mariadb",
+                "name": "${SURVEY_NAME}-postgresql",
                 "labels": {
                     "app": "${SURVEY_NAME}"
                 },
@@ -126,12 +114,12 @@
                         "imageChangeParams": {
                             "automatic": true,
                             "containerNames": [
-                                "${SURVEY_NAME}-mariadb"
+                                "${SURVEY_NAME}-postgresql"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
                                 "namespace": "openshift",
-                                "name": "mariadb:10.2"
+                                "name": "postgresql:9.6"
                             }
                         }
                     }
@@ -141,13 +129,14 @@
                 "test": false,
                 "selector": {
                     "app": "${SURVEY_NAME}",
-                    "deploymentconfig": "${SURVEY_NAME}-mariadb"
+                    "deploymentconfig": "${SURVEY_NAME}-postgresql"
                 },
                 "template": {
                     "metadata": {
+                        "creationTimestamp": null,
                         "labels": {
                             "app": "${SURVEY_NAME}",
-                            "deploymentconfig": "${SURVEY_NAME}-mariadb"
+                            "deploymentconfig": "${SURVEY_NAME}-postgresql"
                         },
                         "annotations": {
                         }
@@ -155,56 +144,53 @@
                     "spec": {
                         "volumes": [
                             {
-                                "name": "mariadb-data",
+                                "name": "postgresql-volume",
                                 "persistentVolumeClaim": {
-                                    "claimName": "${SURVEY_NAME}-mariadb"
+                                    "claimName": "${SURVEY_NAME}-postgresql"
                                 }
                             }
                         ],
                         "containers": [
                             {
-                                "name":"${SURVEY_NAME}-mariadb",
-                                "image": "registry.access.redhat.com/rhscl/mariadb-102-rhel7@sha256:20bef4acb65d9e2011deda9fecbd151ba5c45f04517d945f0789e8b5f35d2b1c",
+                                "name": "${SURVEY_NAME}-postgresql",
+                                "image": "docker-registry.default.svc:5000/openshift/postgresql@sha256:0400ad0dacf89cd6474b3b70c5b6b4c8466d0f36def998aba83aae61f38f3a53",
                                 "ports": [
                                     {
-                                        "containerPort": 3306,
+                                        "containerPort": 5432,
                                         "protocol": "TCP"
                                     }
                                 ],
                                 "env": [
                                     {
-                                        "name": "MYSQL_DATABASE",
+                                        "name": "POSTGRESQL_DATABASE",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "name": "${SURVEY_NAME}-postgresql",
                                                 "key": "database-name"
                                             }
-                                        }
-                                    },
+                                        }                                    },
                                     {
-                                        "name": "MYSQL_PASSWORD",
+                                        "name": "POSTGRESQL_PASSWORD",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "name": "${SURVEY_NAME}-postgresql",
                                                 "key": "database-password"
                                             }
-                                        }
-                                    },
+                                        }                                    },
                                     {
-                                        "name": "MYSQL_USER",
+                                        "name": "POSTGRESQL_USER",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${SURVEY_NAME}-mariadb",
+                                                "name": "${SURVEY_NAME}-postgresql",
                                                 "key": "database-user"
                                             }
-                                        }
-                                    }
+                                        }                                    }
                                 ],
                                 "resources": {},
                                 "volumeMounts": [
                                     {
-                                        "name": "mariadb-data",
-                                        "mountPath": "/var/lib/mysql/data"
+                                        "name": "postgresql-volume",
+                                        "mountPath": "/var/lib/pgsql/data"
                                     }
                                 ],
                                 "terminationMessagePath": "/dev/termination-log",
@@ -225,7 +211,7 @@
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name":"${SURVEY_NAME}-mariadb",
+                "name": "${SURVEY_NAME}-postgresql",
                 "labels": {
                     "app": "${SURVEY_NAME}"
                 },
@@ -235,15 +221,15 @@
             "spec": {
                 "ports": [
                     {
-                        "name": "3306-tcp",
+                        "name": "5432-tcp",
                         "protocol": "TCP",
-                        "port": 3306,
-                        "targetPort": 3306
+                        "port": 5432,
+                        "targetPort": 5432
                     }
                 ],
                 "selector": {
                     "app": "${SURVEY_NAME}",
-                    "deploymentconfig": "${SURVEY_NAME}-mariadb"
+                    "deploymentconfig": "${SURVEY_NAME}-postgresql"
                 },
                 "type": "ClusterIP",
                 "sessionAffinity": "None"

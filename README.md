@@ -6,8 +6,8 @@ OpenShift templates for LimeSurvey, used within Natural Resources Ministries and
 
 * [openshift/mariadb.dc.json]: Deployment configuration for MariaDB database
 * [openshift/limesurvey.dc.json]: Deployment configuration for LimeSurvey PHP application
-* [application/config/config.php]: Configuration used during initial install of LimeSurvey.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
-
+* [application/config/config-mysql.php]: Configuration used during initial install of LimeSurvey with a MariaDB Datbase.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
+* [application/config/config-postgresql.php]: Configuration used during initial install of LimeSurvey with a PostgreSQL Datbase.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 ## Build
 
 To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream code repository.  
@@ -76,12 +76,14 @@ NOTE: The ConfigMap will be left as-is, so to delete:
 `oc -n b7cg3n-deploy delete cm/xyz-app-config`
 
 3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).  
-    a. update [./application/config/config.php]  
+    a. update [./application/config/config-mysql.php] or   [./application/config/config-postgresql.php]
     b. create the ConfigMap, with the correct SURVEY_NAME, such as:  
-    `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config.php`  
+    `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config-mysql.php`  
+    or
+    `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config-postgresql.php`      
     c. let OpenShift generate the specification, with the correct SURVEY_NAME, such as:  
     `oc -n b7cg3n-deploy export configmap xyz-app-config --as-template=nrm-survey-configmap -o json`  
-    d. copy-and-paste the ConfigMap specification, updating the entry in [./openshift/limesurvey.dc.json]  
+    d. copy-and-paste the ConfigMap specification, updating the entry in [./openshift/limesurvey.dc.json] or [./openshift/limesurvey-postgresql.dc.json] 
     e. redeploy this file so that all running pods have the same configuration  
 
 NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [DeploymentConfig](./openshift/limesurvey.dc.json) file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
@@ -103,6 +105,11 @@ If the new version of LimeSurvey has changed `update` folder changes, sync these
 export S=xyz
 oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=$S
 oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey.dc.json -p SURVEY_NAME=$S
+```
+
+Or if using PostgreSQL:
+```
+oc -n b7cg3n-deploy new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=$S
 ```
 
 Once the application pod(s) are up, which can be verified by (ignore the `xyz-app-x-deploy` pod):  
