@@ -122,11 +122,10 @@ unset S
 
 ## TO DO
 
-
-* appropriate resource limits
 * test DB backup/restore and transfer
 * test out application upgrade (e.g. LimeSurvey updates their codebase)
 
 * check for image triggers which force a reploy (image tags.. latest -> v1)
 * health checks for each of the two containers
 * check for persistent upload between re-deploys DONE
+* appropriate resource limits (multi pods supported) DONE
