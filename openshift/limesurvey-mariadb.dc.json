@@ -97,7 +97,7 @@
                     "rollingParams": {
                         "updatePeriodSeconds": 1,
                         "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
+                        "timeoutSeconds": 180,
                         "maxUnavailable": "25%",
                         "maxSurge": "25%"
                     },
@@ -272,7 +272,7 @@
             "spec": {
                 "ports": [
                     {
-                        "name": "8080-tcp",
+                        "name": "web",
                         "protocol": "TCP",
                         "port": 8080,
                         "targetPort": 8080
@@ -307,7 +307,7 @@
                     "weight": 100
                 },
                 "port": {
-                    "targetPort": "8080-tcp"
+                    "targetPort": "web"
                 },
                 "tls": {
                     "termination": "edge"

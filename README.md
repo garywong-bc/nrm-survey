@@ -37,7 +37,7 @@ To redeploy *just* the database, first delete the deployed objects from the last
 
 ### Application
 Deploy the Application using the survey-specific parameter (e.g. `xyz`):  
-`oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mysql.dc.json -p SURVEY_NAME=xyz`
+`oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mariadb.dc.json -p SURVEY_NAME=xyz`
 
 #### Reset
 
@@ -105,7 +105,7 @@ If the new version of LimeSurvey has changed `update` folder changes, sync these
 ```
 export S=xyz
 oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=$S
-oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mysql.dc.json -p SURVEY_NAME=$S
+oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mariadb.dc.json -p SURVEY_NAME=$S
 ```
 
 Or if using PostgreSQL:
