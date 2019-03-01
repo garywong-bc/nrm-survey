@@ -11,14 +11,17 @@ OpenShift templates for LimeSurvey, used within Natural Resources Ministries and
 * [application/config/config-postgresql.php]: Configuration used during initial install of LimeSurvey with a PostgreSQL Datbase.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 ## Build
 
-To ensure we can update to the latest version of LimeSurvey, we build images based upon the upstream code repository.  
+To ensure we can build off a known version of LimeSurvey, we build images based upon the [git submodule](./LimeSurvey).  
 `oc -n b7cg3n-tools new-build openshift/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git --name=limesurvey-app`
 
 Tag with the correct release version, matching the major-minor tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey/tags).  For example:
 
 `oc -n b7cg3n-tools tag limesurvey-app:latest limesurvey-app:v3.15` 
 
-All build images are vanilla out-of-the-box LimeSurvey code.
+NOTE: To update this LimeSurvey [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) from the [upstream repo](https://github.com/LimeSurvey/LimeSurvey):  
+```
+git submodule update --remote LimeSurvey
+```
 
 ## Deploy
 
