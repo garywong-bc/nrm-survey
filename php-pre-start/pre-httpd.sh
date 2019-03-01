@@ -1,0 +1,2 @@
+echo pre-start
+printenv
