@@ -5,7 +5,7 @@ OpenShift templates for LimeSurvey, used within Natural Resources Ministries and
 ## Files
 
 * [Deployment configuration](openshift/mariadb.dc.json) for MariaDB database
-* [Deployment configuration](openshift/limesurvey-mysql.dc.json) for LimeSurvey PHP application, with MariaDB Database
+* [Deployment configuration](openshift/limesurvey-mariadb.dc.json) for LimeSurvey PHP application, with MariaDB Database
 * [Deployment configuration](openshift/limesurvey-postgresql.dc.json) for LimeSurvey PHP application, with PostgreSQL Database
 * [Configuration](application/config/config-mysql.php) used during initial install of LimeSurvey with a MariaDB Database.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 * [Configuration](application/config/config-postgresql.php) used during initial install of LimeSurvey with a PostgreSQL Datbase.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
