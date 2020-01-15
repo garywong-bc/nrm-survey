@@ -25,12 +25,13 @@ NOTE: To update this LimeSurvey [git submodule](https://git-scm.com/book/en/v2/G
 ## Deploy
 
 ### Database
+
 Deploy the DB using the correct SURVEY_NAME parameter (e.g. `xyz`):  
 `oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=xyz`
 
 All DB deployments are based on the out-of-the-box [OpenShift Database Image](https://docs.openshift.com/container-platform/3.11/using_images/db_images/mariadb.html).
 
-#### Reset
+#### Reset the Database
 
 To redeploy *just* the database, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
 `oc -n b7cg3n-deploy delete secret/xyz-mariadb dc/xyz-mariadb svc/xyz-mariadb`
@@ -38,10 +39,11 @@ To redeploy *just* the database, first delete the deployed objects from the last
 (`pvc/xyz-mariadb` will be left as-is)  
 
 ### Application
+
 Deploy the Application using the survey-specific parameter (e.g. `xyz`):  
 `oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mariadb.dc.json -p SURVEY_NAME=xyz`
 
-#### Reset
+#### Reset the Application
 
 To redeploy *just* the application, first delete the deployed objects from the last run, with the correct SURVEY_NAME, such as:  
 `oc -n b7cg3n-deploy delete cm/xyz-app-config dc/xyz-app svc/xyz route/xyz`
@@ -70,13 +72,13 @@ Once the application has finished the initial install you may log in as the admi
 ## FAQ
 
 1. To login the database, open the DB pod terminal (via OpenShift Console or `oc rsh`) and enter:
-`MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE`
+  `MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE`
 
 2. To reset all deployed objects (this will destroy all data amd persistent volumes).  Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.  
-`oc -n b7cg3n-deploy delete all,secret,pvc -l app=xyz`
+  `oc -n b7cg3n-deploy delete all,secret,pvc -l app=xyz`
 
-NOTE: The ConfigMap will be left as-is, so to delete:
-`oc -n b7cg3n-deploy delete cm/xyz-app-config`
+  NOTE: The ConfigMap will be left as-is, so to delete:
+  `oc -n b7cg3n-deploy delete cm/xyz-app-config`
 
 3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).  
     a. update [./application/config/config-mysql.php] or   [./application/config/config-postgresql.php]
@@ -97,21 +99,24 @@ If the new version of LimeSurvey has changed `update` folder changes, sync these
 
 If the new version of LimeSurvey has changed `update` folder changes, sync these changes to [./upload]
 
-4. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
+5. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
 
-5. To dynamically get the pod name of the running application, this is helpful:
+6. To dynamically get the pod name of the running application, this is helpful:
    `oc -n b7cg3n-deploy get pods | grep xyz-app- | grep Running | awk '{print $1}'`
   
-   For each specific survey, it may be useful to set an environment variable for the deployment, for example the `xzz` survey, which will result in a URL of `xyz-survey.pathfinder.gov.bc.ca`. Note that you must fill in the correct admin password (`supersecret` below) and email (`John.Doe@gov.bc.ca` below):
+## Using an environmental variable to deploy
 
-```
+For each specific survey, it may be useful to set an environment variable for the deployment, for example the `xzz` survey, which will result in a URL of `xyz-survey.pathfinder.gov.bc.ca`. Note that you must fill in the correct admin password (`supersecret` below) and email (`John.Doe@gov.bc.ca` below):
+
+```bash
 export S=xyz
 oc -n b7cg3n-deploy new-app --file=./openshift/mariadb.dc.json -p SURVEY_NAME=$S
 oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-mariadb.dc.json -p SURVEY_NAME=$S
 ```
 
 Or if using PostgreSQL:
-```
+
+```bash
 oc -n b7cg3n-deploy new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=$S
 oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=$S
 ```
@@ -119,17 +124,16 @@ oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p 
 Once the application pod(s) are up, which can be verified by (ignore the `xyz-app-x-deploy` pod):  
 `oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'`
 
-```
+```bash
 oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey
 
 oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}')
 cd application/commands/
 php console.php install admin supersecret Administrator John.Doe@gov.bc.ca
-exit 
+exit
 
 unset S
 ```
-
 
 ## TO DO
 
@@ -138,5 +142,10 @@ unset S
 
 * check for image triggers which force a reploy (image tags.. latest -> v1)
 * health checks for each of the two containers
-* check for persistent upload between re-deploys DONE
-* appropriate resource limits (multi pods supported) DONE
+
+### Done
+
+* updated `gluster-file-db` to `netapp-block-standard`
+* updated `gluster-file` to `netapp-file-standard`
+* check for persistent upload between re-deploys
+* appropriate resource limits (multi pods supported)

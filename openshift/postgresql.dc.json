@@ -82,7 +82,7 @@
                         "storage": "${DB_VOLUME_CAPACITY}"
                     }
                 },
-                "storageClassName": "gluster-file-db"
+                "storageClassName": "netapp-block-standard"
             }
         },  
         {

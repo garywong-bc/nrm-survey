@@ -76,7 +76,7 @@
                         "storage": "${LIMESURVEY_UPLOAD_FOLDER_CAPACITY}"
                     }
                 },
-                "storageClassName": "gluster-file"
+                "storageClassName": "netapp-file-standard"
             }
         },        
         {
@@ -225,11 +225,11 @@
 										"port": 8080,
 										"scheme": "HTTP"
 									},
-									"initialDelaySeconds": 60,
+									"initialDelaySeconds": 120,
 									"timeoutSeconds": 5,
 									"periodSeconds": 10,
 									"successThreshold": 1,
-									"failureThreshold": 6
+									"failureThreshold": 3
 								},
 								"readinessProbe": {
 									"httpGet": {
