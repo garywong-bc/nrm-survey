@@ -53,13 +53,13 @@ To redeploy *just* the application, first delete the deployed objects from the l
 ## Copy over Upload folder
 
 As OpenShift pods can get redeployed at any time, we copy all `/upload` folders and files onto our mounted PersistentVolume. Use `oc rsync` with the correct SURVEY_NAME such as:  
-`oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep xyz-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey`
+`oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep xyz-app- | grep -v deploy | grep Running | awk '{print $1}'):/var/lib/limesurvey`
 
 ## Perform initial LimeSurvey installation
 
 Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials, such as:
 ```
-oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep xyz-app- | grep Running | awk '{print $1}')
+oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep xyz-app- | grep -v deploy | grep Running | awk '{print $1}')
 cd application/commands/
 php console.php install admin <password> Administrator <>@gov.bc.ca
 ```
@@ -74,11 +74,17 @@ Once the application has finished the initial install you may log in as the admi
 1. To login the database, open the DB pod terminal (via OpenShift Console or `oc rsh`) and enter:
   `MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE`
 
-2. To reset all deployed objects (this will destroy all data amd persistent volumes).  Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.  
+2. To reset all deployed objects (this will destroy all data and persistent volumes).  Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.  
   `oc -n b7cg3n-deploy delete all,secret,pvc -l app=xyz`
 
   NOTE: The ConfigMap will be left as-is, so to delete:
   `oc -n b7cg3n-deploy delete cm/xyz-app-config`
+
+  OR:  
+    `oc -n b7cg3n-deploy delete all,secret,pvc -l app=$S`  
+  and  
+    `oc -n b7cg3n-deploy delete cm/$S-app-config`
+
 
 3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).  
     a. update [./application/config/config-mysql.php] or   [./application/config/config-postgresql.php]
@@ -102,7 +108,7 @@ If the new version of LimeSurvey has changed `update` folder changes, sync these
 5. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
 
 6. To dynamically get the pod name of the running application, this is helpful:
-   `oc -n b7cg3n-deploy get pods | grep xyz-app- | grep Running | awk '{print $1}'`
+   `oc -n b7cg3n-deploy get pods | grep xyz-app- | grep -v deploy | grep Running | awk '{print $1}'`
   
 ## Using an environmental variable to deploy
 
@@ -121,13 +127,13 @@ oc -n b7cg3n-deploy new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME
 oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=$S
 ```
 
-Once the application pod(s) are up, which can be verified by (ignore the `xyz-app-x-deploy` pod):  
-`oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'`
+Once the application pod(s) are up, which can be verified by:  
+`oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}'`
 
 ```bash
 oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey
 
-oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}')
+oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}')
 cd application/commands/
 php console.php install admin supersecret Administrator John.Doe@gov.bc.ca
 exit

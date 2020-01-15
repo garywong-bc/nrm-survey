@@ -67,7 +67,7 @@
                 },
                 "annotations": {
                     "template.openshift.io.bcgov/create": "true",
-                    "volume.beta.kubernetes.io/storage-provisioner": "kubernetes.io/glusterfs"
+                    "volume.beta.kubernetes.io/storage-provisioner": "netapp.io/trident"
                 },
                 "finalizers": [
                     "kubernetes.io/pvc-protection"
@@ -193,6 +193,24 @@
                                         "mountPath": "/var/lib/pgsql/data"
                                     }
                                 ],
+                                "livenessProbe": {
+                                    "initialDelaySeconds": 30,
+                                    "tcpSocket": {
+                                        "port": 5432
+                                    },
+                                    "timeoutSeconds": 1
+                                },
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "pg_isready -h localhost -p 5432"
+                                        ]
+                                    },
+                                    "initialDelaySeconds": 5,
+                                    "timeoutSeconds": 1                                        
+                                },
                                 "terminationMessagePath": "/dev/termination-log",
                                 "terminationMessagePolicy": "File",
                                 "imagePullPolicy": "Always"
