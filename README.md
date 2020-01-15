@@ -130,8 +130,10 @@ oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p 
 Once the application pod(s) are up, which can be verified by:  
 `oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}'`
 
+Copy over the upload folder and initialize the admin credentials:
+
 ```bash
-oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep Running | awk '{print $1}'):/var/lib/limesurvey
+oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}'):/var/lib/limesurvey
 
 oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}')
 cd application/commands/
