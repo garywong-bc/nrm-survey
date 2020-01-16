@@ -136,8 +136,7 @@ Copy over the upload folder and initialize the admin credentials:
 oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}'):/var/lib/limesurvey
 
 oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}')
-cd application/commands/
-php console.php install admin supersecret Administrator John.Doe@gov.bc.ca
+cd application/commands/ && php console.php install admin supersecret Administrator John.Doe@gov.bc.ca
 exit
 
 unset S
