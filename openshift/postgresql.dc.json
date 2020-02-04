@@ -64,14 +64,7 @@
                 "name": "${SURVEY_NAME}-postgresql",
                 "labels": {
                     "app": "${SURVEY_NAME}"
-                },
-                "annotations": {
-                    "template.openshift.io.bcgov/create": "true",
-                    "volume.beta.kubernetes.io/storage-provisioner": "netapp.io/trident"
-                },
-                "finalizers": [
-                    "kubernetes.io/pvc-protection"
-                ]
+                }
             },
             "spec": {
                 "accessModes": [

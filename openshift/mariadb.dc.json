@@ -76,14 +76,7 @@
                 "labels": {
                     "app": "${SURVEY_NAME}",
                     "template": "mariadb-persistent-template"
-                },
-                "annotations": {
-                    "template.openshift.io.bcgov/create": "true",
-                    "volume.beta.kubernetes.io/storage-provisioner": "kubernetes.io/glusterfs"
-                },
-                "finalizers": [
-                    "kubernetes.io/pvc-protection"
-                ]
+                }
             },
             "spec": {
                 "accessModes": [

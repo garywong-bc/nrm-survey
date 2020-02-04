@@ -85,16 +85,20 @@ Once the application has finished the initial install you may log in as the admi
   and  
     `oc -n b7cg3n-deploy delete cm/$S-app-config`
 
+3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
 
-3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).  
-    a. update [./application/config/config-mysql.php] or   [./application/config/config-postgresql.php]
+    a. update (./application/config/config-mysql.php) or (./application/config/config-postgresql.php)
+
     b. create the ConfigMap, with the correct SURVEY_NAME, such as:  
     `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config-mysql.php`  
     or
-    `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config-postgresql.php`      
+    `oc -n b7cg3n-deploy create configmap xyz-app-config --from-file=config.php=./application/config/config-postgresql.php`
+
     c. let OpenShift generate the specification, with the correct SURVEY_NAME, such as:  
-    `oc -n b7cg3n-deploy export configmap xyz-app-config --as-template=nrm-survey-configmap -o json`  
-    d. copy-and-paste the ConfigMap specification, updating the entry in [./openshift/limesurvey-mysql.dc.json] or [./openshift/limesurvey-postgresql.dc.json] 
+    `oc -n b7cg3n-deploy export configmap xyz-app-config --as-template=nrm-survey-configmap -o json`
+
+    d. copy-and-paste the ConfigMap specification, updating the entry in (./openshift/limesurvey-mysql.dc.json) or [./openshift/limesurvey-postgresql.dc.json)
+
     e. redeploy this file so that all running pods have the same configuration  
 
 NOTE: The `config.php` is deployed as read-only, from the OpenShift ConfigMap in the [DeploymentConfig](./openshift/limesurvey-mysql.dc.json) file.  Any updates to this file implies that you must redeploy the application (but not necessarily the database).
@@ -107,7 +111,7 @@ If the new version of LimeSurvey has changed `update` folder changes, sync these
 
 5. The LimeSurvey GUI wizard-style install is not used as we enforce the NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the wizard.  Launching the wizard without running the step above will result in a `HTTP ERROR 500` error.
 
-6. To dynamically get the pod name of the running application, this is helpful:
+6. To dynamically get the pod name of the running application, this is helpful:  
    `oc -n b7cg3n-deploy get pods | grep xyz-app- | grep -v deploy | grep Running | awk '{print $1}'`
   
 ## Using an environmental variable to deploy
