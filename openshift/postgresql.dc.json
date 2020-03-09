@@ -146,7 +146,7 @@
                         "containers": [
                             {
                                 "name": "${SURVEY_NAME}-postgresql",
-                                "image": "docker-registry.default.svc:5000/openshift/postgresql@sha256:0400ad0dacf89cd6474b3b70c5b6b4c8466d0f36def998aba83aae61f38f3a53",
+                                "image": " ",
                                 "ports": [
                                     {
                                         "containerPort": 5432,

@@ -157,7 +157,7 @@
                         "containers": [
                             {
                                 "name":"${SURVEY_NAME}-mariadb",
-                                "image": "registry.access.redhat.com/rhscl/mariadb-102-rhel7@sha256:20bef4acb65d9e2011deda9fecbd151ba5c45f04517d945f0789e8b5f35d2b1c",
+                                "image": " ",
                                 "ports": [
                                     {
                                         "containerPort": 3306,

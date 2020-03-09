@@ -151,7 +151,7 @@
                         "containers": [
                             {
                                 "name": "limesurvey-app",
-                                "image": "docker-registry.default.svc:5000/b7cg3n-tools/limesurvey-app@sha256:b20a6cbcb680782a21d89665ad3f59084af8869db60d75df3088d92987b6e28c",
+                                "image": " ",
                                 "ports": [
                                     {
                                         "containerPort": 8080,
