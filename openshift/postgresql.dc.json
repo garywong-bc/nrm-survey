@@ -75,7 +75,7 @@
                         "storage": "${DB_VOLUME_CAPACITY}"
                     }
                 },
-                "storageClassName": "netapp-block-standard"
+                "storageClassName": "netapp-file-standard"
             }
         },  
         {
