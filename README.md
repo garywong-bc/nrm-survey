@@ -1,23 +1,42 @@
+### Table of Contents
+
+<!-- TOC depthto:2 -->
+
+- [NRM LimeSurvey](#nrm-limesurvey)
+  - [Prerequisites](#prerequisites)
+  - [Files](#files)
+  - [Build](#build)
+  - [Deploy](#deploy)
+  - [Example Deployment](#example-deployment)
+  - [Using Environmental variables to deploy](#using-environmental-variables-to-deploy)
+  - [FAQ](#faq)
+  - [Versioning](#versioning)
+  - [TO DO](#to-do)
+
+<!-- /TOC -->
+
 # NRM LimeSurvey
 
 OpenShift templates for LimeSurvey, used within Natural Resources Ministries and ready for deployment on [OpenShift](https://www.openshift.com/).  [LimeSurvey](https://www.limesurvey.org/) is an open-source PHP application with a relational database for persistent data.  MariaDB was initially chosen over the usual CSI Lab PostgreSQL due to LimeSurvey supporting DB backup out-of-the-box with MariaDB; but with the addition of [Backup Containers](https://github.com/BCDevOps/backup-container), we have now standardized on PostgreSQL.
 
-
 ## Prerequisites
-For deployment:  
-* [Project Adminisrator](https://docs.openshift.com/container-platform/3.11/architecture/additional_concepts/authorization.html#roles) access to an [Openshift](https://console.pathfinder.gov.bc.ca:8443/console/catalog) Project namespace
-* the [oc](https://docs.openshift.com/container-platform/3.11/cli_reference/get_started_cli.html) CLI tool, installed on your local workstation
-* access to this [GitHub Repo](./)
 
-Once deployed, any visitors to the site will require:  
+For deployment:
+
+* [Project Administrator](https://docs.openshift.com/container-platform/3.11/architecture/additional_concepts/authorization.html#roles) access to an [Openshift](https://console.pathfinder.gov.bc.ca:8443/console/catalog) Project namespace
+* the [oc](https://docs.openshift.com/container-platform/3.11/cli_reference/get_started_cli.html) CLI tool, installed on your local workstation
+* access to this public [GitHub Repo](./)
+
+Once deployed, any visitors to the site will require:
+
 * IE11 (intranet-mode excluded) or 
-* aner newer comparable browsers like Edge, FF, Chrome, Opera etc. with activated JavaScript (see official LimeSurvey [docs](https://manual.limesurvey.org/Installation_-_LimeSurvey_CE#Make_sure_you_can_use_LimeSurvey_on_your_website))
+* any newer comparable browsers like Edge, FF, Chrome, Opera etc. with activated JavaScript (see official LimeSurvey [docs](https://manual.limesurvey.org/Installation_-_LimeSurvey_CE#Make_sure_you_can_use_LimeSurvey_on_your_website))
 
 ## Files
 
 * [OpenShift LimeSurvey app template](openshift/limesurvey-postgresql.dc.json) for LimeSurvey PHP application, with PostgreSQL Database
 * [OpenShift Database service template](openshift/postgresql.dc.json) for a PostgreSQL Database
-* [LimeSurvey Configuration](application/config/config-postgresql.php) used during initial install of LimeSurvey with a PostgreSQL Datbase.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
+* [LimeSurvey Configuration](application/config/config-postgresql.php) used during initial install of LimeSurvey with a PostgreSQL Database.  It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell.  It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 
 ## Build
 
@@ -35,7 +54,7 @@ NOTE: To update this LimeSurvey [git submodule](https://git-scm.com/book/en/v2/G
 
 ## Deploy
 
-### 1 Database Deployment
+### Database Deployment
 
 Deploy the DB using the correct SURVEY_NAME parameter (e.g. an acronym that is prefixed to `limesurvey`):
 
@@ -45,16 +64,16 @@ All DB deployments are based on the out-of-the-box [OpenShift Database Image](ht
 
 <details><summary>To Redeploy</summary>
 
-To start over, you'll need to delete the previously deployed objects in your project namsapce.  To delete *just* the database deployment:  
+To start over, you'll need to delete the previously deployed objects in your project namespace.  To delete *just* the database deployment:  
 
 > oc -n &lt;project&gt; delete secret/xyzlimesurvey-postgresql dc/&lt;survey&gt;limesurvey-postgresql svc/&lt;survey&gt;limesurvey-postgresql
 
-The Database Volume is left intact in case there is important data on it; if not (i.e. it's a brand new survey):    
+The Database Volume is left intact in case there is important data on it; if not (i.e. it's a brand-new survey):    
 `oc -n <project> delete pvc/<survey>limesurvey-postgresql`  
 
 </details>
 
-### 2 Application Deployment
+### Application Deployment
 
 Deploy the Application using the survey-specific parameter (e.g. `<survey>limesurvey`):
 
@@ -64,16 +83,16 @@ NOTE: The ADMIN_EMAIL is required, and you  override the ADMIN_USER and ADMIN_NA
 
 <details><summary>To Redeploy</summary>
 
-To start over, you'll need to delete the previously deployed objects in your project namsapce.  To delete *just* the application deployment:  
+To start over, you'll need to delete the previously deployed objects in your project namespace.  To delete *just* the application deployment:  
 
 > oc -n &lt;project&gt; delete cm/&lt;survey&gt;limesurvey-app-config secret/&lt;survey&gt;limesurvey-admin-cred dc/&lt;survey&gt;limesurvey-app svc/&lt;survey&gt;limesurvey route/&lt;survey&gt;limesurvey
 
-The Uploads Volume is left intact in case there is user-uploaded assets on it; if not (i.e. it's a brand new survey):  
+The Uploads Volume is left intact in case there is user-uploaded assets on it; if not (i.e. it's a brand-new survey):  
 `oc -n <project> delete pvc/<survey>limesurvey-app-uploads`
 
 </details>
 
-## 2.1 Perform LimeSurvey installation
+#### Perform LimeSurvey installation
 
 Run the [command line install](https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)) via `oc rsh`, with the correct SURVEY_NAME and credentials:
 
@@ -82,9 +101,9 @@ Run the [command line install](https://manual.limesurvey.org/Installation_using_
 > cd application/commands/
 php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}  
 
-NOTE that the `${ADMIN_*}` text is exactly as written, aince the app has access to these environment variables (set during the `new-app` step).
+NOTE that the `${ADMIN_*}` text is exactly as written, since the app has access to these environment variables (set during the `new-app` step).
 
-### 2.2 Synchronize the Uploads folder
+#### Synchronize the Uploads folder
 
 As OpenShift pods can be subsequently redeployed at any time, we synchronize all `/upload` folders and files onto our mounted PersistentVolume.
 
@@ -104,10 +123,9 @@ This need only be done once per replica set (i.e. `rsh` into one pod, rsync, and
 
 </details>
 
+### Log into the LimeSurvey app
 
-### 3 Log into the LimeSurvey app
-
-Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  Use the correct Survey acronyn in the URL:
+Once the application has finished the initial install you may log in as the admin user (created in either of the two methods above).  Use the correct Survey acronym in the URL:
 `https://<survey>limesurvey.pathfinder.gov.bc.ca/index.php/admin`
 
 ## Example Deployment
@@ -116,7 +134,7 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
 
 <details><summary>Deployment Steps</summary>
 
-### 1 Database Deployment
+### Database Deployment
 
 > oc -n b7cg3n-deploy new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=acmelimesurvey
 
@@ -140,7 +158,7 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
     Run 'oc status' to view your app.
 ```
 
-### 2 Application Deployment
+### Application Deployment
 
 > oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=acmelimesurvey -p ADMIN_EMAIL=Wile.E.Coyote@gov.bc.ca ADMIN_NAME="ACME LimeSurvey Administrator"
 
@@ -176,7 +194,7 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
     Run 'oc status' to view your app.
 ```
 
-### 2.1 Perform LimeSurvey installation
+#### Perform LimeSurvey installation
 
 After 20 - 30 seconds, at least one pod should be up.  Verify that pods are running:
 
@@ -205,7 +223,7 @@ Run the install commands in this shell:
 
 Type `exit` to exit the remote shell.
 
-### 2.2 Synchronize the Uploads folder
+#### Synchronize the Uploads folder
 
 > oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}'):/var/lib/limesurvey
 
@@ -233,7 +251,7 @@ total size is 1575  speedup is 0.62
 
 Type `exit` to exit the remote shell.
 
-### 3 Log into the LimeSurvey app
+### Log into the LimeSurvey app
 
 The Administrative interface is at:
 https://acmelimesurvey.pathfinder.gov.bc.ca/index.php/admin/
@@ -245,7 +263,6 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 ![Welcome Page](./docs/images/WelcomePage.png)
 </details>
 
-
 ## Using Environmental variables to deploy
 
 As this is a template deployment, it may be set environment variable for the deployment, so using the example &lt;project&gt; is 'b7cg3n-deploy' and &lt;survey&gt; is `IITD limesurvey':
@@ -254,8 +271,8 @@ As this is a template deployment, it may be set environment variable for the dep
 
 ### Set the environment variables
 
-
 On a workstation logged into the OpenShift Console:
+
 ```bash
 export PROJECT=b7cg3n-deploy
 export SURVEY=iitd
@@ -320,9 +337,10 @@ export SURVEY=iitd
     Access your application via route 'iitdlimesurvey.pathfinder.gov.bc.ca' 
     Run 'oc status' to view your app.
 ```
-### Perform one-time setup
 
-After 20 - 30 seconds, at least one pod should be up.  Verify that pods are running:
+#### Perform LimeSurvey installation
+
+After 20 to 30 seconds, at least one pod should be up.  Verify that pods are running:
 
 > oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | awk '{print $1}'
 
@@ -348,7 +366,7 @@ cd application/commands/
 exit
 ```
 
-## Synchronize the shared uploads folder
+#### Synchronize the Uploads folder
 
 ```bash
 oc -n ${PROJECT} rsync upload $(oc -n ${PROJECT}  get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}'):/var/lib/limesurvey
@@ -374,7 +392,7 @@ sent 2314 bytes  received 238 bytes  729.14 bytes/sec
 total size is 1575  speedup is 0.62
 ```
 
-### Login via web browser
+### Log into the LimeSurvey app
 
 The Administrative interface is at:
 https://https://iitdlimesurveylimesurvey.pathfinder.gov.bc.ca/index.php/admin/
@@ -390,15 +408,15 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
 ## FAQ
 
-1. To login the database, open the DB pod terminal (via OpenShift Console or `oc rsh`) and enter:
+* to login the database, open the DB pod terminal (via OpenShift Console or `oc rsh`) and enter:
 
     `psql -U ${POSTGREQL_USER} ${POSTGRESQL_DATABASE}`
 
-2. To reset all deployed objects (this will destroy all data and persistent volumes).  Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.
+* to reset all deployed objects (this will destroy all data and persistent volumes).  Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.
 
     `oc -n <project> delete all,secret,pvc -l app=<survey>limesurvey`
 
-      NOTE: The ConfigMap will be left as-is, so to delete:
+    NOTE: The ConfigMap will be left as-is, so to delete:
 
     `oc -n <project> delete cm/<survey>limesurvey-app-config`
 
@@ -409,7 +427,7 @@ Once logged as an Admin, you'll be brought to the Welcome page:
     oc -n ${PROJECT} delete cm/${SURVEY}limesurvey-app-config
 ```
 
-3. To recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
+* to recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
 
     a. update the [ConfigMap Source](application/config/config-postgresql.php)
 
@@ -432,31 +450,11 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
     If the new version of LimeSurvey has `upload` folder changes, sync these changes to the [Uploads Folder](upload)
 
-4. The LimeSurvey GUI wizard-style install is not used as we *enforce* NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the LimeSurvey wizard.  Launching the wizard without running the step above (i.e. a deployed `config.php`)will result in a `HTTP ERROR 500` error.
+* the LimeSurvey GUI wizard-style install is not used as we *enforce* NRM-specific `config.php`.  This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the LimeSurvey wizard.  Launching the wizard without running the step above (i.e. a deployed `config.php`)will result in a `HTTP ERROR 500` error.
 
-5. To dynamically get the pod name of the running pods, this is helpful:
+* to dynamically get the pod name of the running pods, this is helpful:
 
     > oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | awk '{print $1}'
-
-
-=======
-
-for example the `xzzlimesurvey`, which will result in a URL of `xyzsurvey.pathfinder.gov.bc.ca`. Note that you the admin password and email are required:
-
-> export SURVEYNAME=xyz  
-> oc -n b7cg3n-deploy new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=$SURVEYNAME  
-> oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=$SURVEYNAME -p ADMIN_EMAIL=xx
-
-Once the application pod(s) are up (verified via a list of running pods)...
-> oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | awk '{print $1}'
-
-.. copy over the upload folder and initialize the admin credentials:
-
-> oc -n b7cg3n-deploy rsync upload $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}'):/var/lib/limesurvey  
-> oc -n b7cg3n-deploy rsh $(oc -n b7cg3n-deploy get pods | grep $S-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')  
-> cd application/commands/ && php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}  
-> exit  
-> unset S
 
 ## Versioning
 
@@ -465,7 +463,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## TO DO
 
 * test out application upgrade (e.g. LimeSurvey updates their codebase)
-* check for image triggers which force a reploy (image tags.. latest -> v1)
+* check for image triggers which force a redeploy (image tags.. latest -> v1)
 
 ### Done
 
