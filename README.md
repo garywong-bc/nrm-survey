@@ -11,7 +11,7 @@
   - [Using Environmental variables to deploy](#using-environmental-variables-to-deploy)
   - [FAQ](#faq)
   - [Versioning](#versioning)
-  - [TO DO](#to-do)
+  - [[Unreleased]](#unreleased)
 
 <!-- /TOC -->
 
@@ -214,11 +214,11 @@ Run the install commands in this shell:
 > php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
 
 ```bash
-    Connecting to database...
-    Using connection string pgsql:host=acmelimesurvey-postgresql;port=5432;dbname=acmelimesurvey
-    Creating tables...
-    Creating admin user...
-    All done!
+Connecting to database...
+Using connection string pgsql:host=acmelimesurvey-postgresql;port=5432;dbname=acmelimesurvey
+Creating tables...
+Creating admin user...
+All done!
 ```
 
 Type `exit` to exit the remote shell.
@@ -349,22 +349,22 @@ iitdlimesurvey-app-1-2z7tj
 iitdlimesurvey-app-1-pf8q4
 ```
 
-Once you see running pods:
+Once you see running pods, remote into one of the pods:
+
+> oc -n ${PROJECT} rsh $(oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')
 
 ```bash
-oc -n ${PROJECT} rsh $(oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')
-
 cd application/commands/
-  php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
-  Connecting to database...
-  Using connection string pgsql:host=iitdlimesurvey-postgresql;port=5432;dbname=iitdlimesurvey
-  Creating tables...
+php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
+Connecting to database...
+Using connection string pgsql:host=iitdlimesurvey-postgresql;port=5432;dbname=iitdlimesurvey
+Creating tables...
 
-  Creating admin user...
-  All done!
-
-exit
+Creating admin user...
+All done!
 ```
+
+Type `exit` to exit the remote shell.
 
 #### Synchronize the Uploads folder
 
@@ -460,12 +460,12 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
-## TO DO
+## [Unreleased]
 
 * test out application upgrade (e.g. LimeSurvey updates their codebase)
 * check for image triggers which force a redeploy (image tags.. latest -> v1)
 
-### Done
+### Added
 
 * after-the-fact tagged and created release for [first version](https://github.com/garywong-bc/nrm-survey/releases/tag/v3.15) 
 * implemented health checks for the deployments
@@ -474,3 +474,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 * updated `gluster-file` to `netapp-file-standard`
 * check for persistent upload between re-deploys
 * appropriate resource limits (multi-replica deployment supported)
+
+### Changed
+
+### Removed
