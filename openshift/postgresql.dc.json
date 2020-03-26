@@ -201,7 +201,7 @@
                                             "pg_isready -h localhost -p 5432"
                                         ]
                                     },
-                                    "initialDelaySeconds": 5,
+                                    "initialDelaySeconds": 20,
                                     "timeoutSeconds": 1                                        
                                 },
                                 "terminationMessagePath": "/dev/termination-log",
