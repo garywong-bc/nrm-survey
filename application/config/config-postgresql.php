@@ -28,6 +28,9 @@ $dbusername = getenv('POSTGRESQL_USERNAME');
 $dbpassword = getenv('POSTGRESQL_PASSWORD');
 $connectstring = "pgsql:host=".$dbhost.";port=".$dbport.";dbname=".$dbname;
 
+$adminemail = getenv('ADMIN_EMAIL');
+$adminname  = getenv('ADMIN_NAME');
+
 return array(
         'components' => array(
                 'db' => array(
@@ -68,9 +71,9 @@ return array(
                 'debug'=>0,
                 'debugsql'=>0, // Set this to 1 to enanble sql logging, only active when debug = 2
                 // Update default LimeSurvey config here
-                'siteadminemail'     => 'noreply@gov.bc.ca', // The default email address of the site administrator
-                'siteadminbounce'    => 'noreply@gov.bc.ca', // The default email address used for error notification of sent messages for the site administrator (Return-Path)
-                'siteadminname'      => 'NRM Survey Site Admin', // The name of the site administrator
+                'siteadminemail'     => $adminemail, // The default email address of the site administrator
+                'siteadminbounce'    => $adminemail, // The default email address used for error notification of sent messages for the site administrator (Return-Path)
+                'siteadminname'      => $adminname, // The name of the site administrator
                 'emailmethod'        => 'smtp', // The following values can be used:
                 'protocol'           => 'smtp',
                 'emailsmtphost'      => 'apps.smtp.gov.bc.ca', // Sets the SMTP host. You can also specify a different port than 25 by using
