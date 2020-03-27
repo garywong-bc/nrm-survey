@@ -71,6 +71,7 @@ return array(
                 'debug'=>0,
                 'debugsql'=>0, // Set this to 1 to enanble sql logging, only active when debug = 2
                 // Update default LimeSurvey config here
+                'updatable'          => false,
                 'siteadminemail'     => $adminemail, // The default email address of the site administrator
                 'siteadminbounce'    => $adminemail, // The default email address used for error notification of sent messages for the site administrator (Return-Path)
                 'siteadminname'      => $adminname, // The name of the site administrator
