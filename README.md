@@ -50,7 +50,7 @@ Once deployed, any visitors to the site will require:
 
 To ensure we can build off a known version of LimeSurvey, we build images based upon the [git submodule](./LimeSurvey).
 
-> oc -n b7cg3n-tools new-build openshift/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git#3.x-LTS --name=limesurvey-app
+> oc -n &lt;tools-namespace&gt; new-build openshift/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git#3.x-LTS --name=limesurvey-app
 
 Tag with the correct release version, matching the major-minor tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey/tags).  For example:
 
@@ -384,14 +384,13 @@ total size is 1575  speedup is 0.62
 ### Log into the LimeSurvey app
 
 The Administrative interface is at:
-https://https://${SURVEY}limesurveylimesurvey.pathfinder.gov.bc.ca/index.php/admin/
+https://${SURVEY}limesurvey.pathfinder.gov.bc.ca/index.php/admin/
 
 and bring to you a screen like:
 ![Admin Logon](./docs/images/AdminLogin.png)
 
 Once logged as an Admin, you'll be brought to the Welcome page:
 ![Welcome Page](./docs/images/WelcomePage.png)
-
 
 </details>
 
