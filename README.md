@@ -146,7 +146,7 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
 
 ### Application Deployment
 
-> oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=acmelimesurvey -p ADMIN_EMAIL=Wile.E.Coyote@gov.bc.ca ADMIN_NAME="ACME LimeSurvey Administrator"
+> oc -n b7cg3n-deploy new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=acmelimesurvey -p ADMIN_EMAIL=Wile.E.Coyote@gov.bc.ca -p ADMIN_NAME="ACME LimeSurvey Administrator"
 
 ```bash
 --> Deploying template "b7cg3n-deploy/nrms-limesurvey-postgresql-dc" for "./openshift/limesurvey-postgresql.dc.json" to project b7cg3n-deploy
@@ -290,7 +290,7 @@ export SURVEY=iitd
 
 ### App Deployment
 
-> oc -n ${PROJECT} new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca ADMIN_NAME="IITD LimeSurvey Administrator"
+> oc -n ${PROJECT} new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator"
 
 ```bash
 --> Deploying template "b7cg3n-deploy/nrms-limesurvey-postgresql-dc" for "./openshift/limesurvey-postgresql.dc.json" to project b7cg3n-deploy
@@ -472,6 +472,10 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 * to dynamically get the pod name of the running pods, this is helpful:
 
     > oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | awk '{print $1}'
+
+* to customize the deployment with higher resources, using environment variables:
+
+
 
 ## Versioning
 
