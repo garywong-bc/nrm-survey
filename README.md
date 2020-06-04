@@ -473,9 +473,10 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
     > oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | awk '{print $1}'
 
-* to customize the deployment with higher resources, using environment variables:
+* to customize the deployment with higher/lower resources, using environment variables, follow these examples:  
 
-
+    > oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey -p MEMORY_LIMIT=768Mi -p DB_VOLUME_CAPACITY=1280Mi  
+    > oc -n ${PROJECT} new-app --file=./openshift/limesurvey-postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator" -p REPLICA_MIN=1
 
 ## Versioning
 
