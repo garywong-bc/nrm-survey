@@ -251,7 +251,7 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
 ## Using Environmental variables to deploy
 
-As this is a template deployment, it may be easier to set environment variable for the deployment, so using the example &lt;project&gt; is 'b7cg3n-deploy' and &lt;survey&gt; is `IITD limesurvey':
+As this is a template deployment, it may be easier to set environment variable for the deployment, so using the example &lt;project&gt; is `b7cg3n-deploy` and &lt;survey&gt; is `IITD limesurvey`:
 
 <details><summary>Deployment Steps</summary>
 
