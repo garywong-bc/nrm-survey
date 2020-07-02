@@ -64,23 +64,23 @@
     },
     {
       "name": "CPU_LIMIT",
-      "value": "500m"
-    },
-    {
-      "name": "MEMORY_LIMIT",
-      "value": "1Gi"
-    },
-    {
-      "name": "CPU_REQUEST",
       "value": "100m"
     },
     {
+      "name": "MEMORY_LIMIT",
+      "value": "256Mi"
+    },
+    {
+      "name": "CPU_REQUEST",
+      "value": "50m"
+    },
+    {
       "name": "MEMORY_REQUEST",
-      "value": "512Mi"
+      "value": "200Mi"
     },
     {
       "name": "REPLICA_MIN",
-      "value": "1"
+      "value": "2"
     },
     {
       "name": "REPLICA_MAX",
@@ -343,7 +343,7 @@
                     "scheme": "HTTP"
                   },
                   "initialDelaySeconds": 30,
-                  "timeoutSeconds": 2,
+                  "timeoutSeconds": 5,
                   "periodSeconds": 30,
                   "successThreshold": 1,
                   "failureThreshold": 10
@@ -423,10 +423,6 @@
         "creationTimestamp": null,
         "labels": {
           "app": "${SURVEY_NAME}"
-        },
-        "annotations": {
-          "haproxy.router.openshift.io/disable_cookies": "true",
-          "haproxy.router.openshift.io/balance": "roundrobin"
         }
       },
       "spec": {
