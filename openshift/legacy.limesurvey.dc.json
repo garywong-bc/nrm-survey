@@ -2,14 +2,14 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "nrms-limesurvey-postgresql-dc"
+    "name": "nrms-limesurvey-dc"
   },
   "parameters": [
     {
       "description": "The OpenShift Namespace where the ImageStream resides.",
       "displayName": "Namespace",
       "name": "IS_NAMESPACE",
-      "value": "b7cg3n-tools"
+      "value": "599f0a-tools"
     },
     {
       "description": "The OpenShift ImageStream name.",
@@ -184,7 +184,7 @@
             }
           }
         ],
-        "replicas": "${REPLICA_MIN}",
+        "replicas": "${{REPLICA_MIN}}",
         "revisionHistoryLimit": 10,
         "test": false,
         "selector": {
@@ -426,7 +426,7 @@
         }
       },
       "spec": {
-        "host": "${SURVEY_NAME}.pathfinder.gov.bc.ca",
+        "host": "${SURVEY_NAME}.apps.silver.devops.gov.bc.ca",
         "to": {
           "kind": "Service",
           "name": "${SURVEY_NAME}",
