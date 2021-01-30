@@ -38,19 +38,16 @@ Once deployed, any visitors to the site will require a modern browser (e.g. Edge
 ## Files
 
 - [OpenShift LimeSurvey app template](openshift/limesurvey.dc.yaml) for LimeSurvey PHP application, with PostgreSQL Database
-- [OpenShift Database service template](openshift/postgresql.dc.json) for a PostgreSQL Database
+- [OpenShift Database service template](openshift/postgresql.dc.yaml) for a PostgreSQL Database
 - [LimeSurvey Configuration](application/config/config-postgresql.php) used during initial install of LimeSurvey with a PostgreSQL Database. It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell. It is automatically deployed to the running container from the application's OpenShift ConfigMap.
 
 ## Build
 
+NOTE: PHP7.1 image is no longer available on OCP4, so we're using the legacy image from OCP3 cluster, tagged as `php:7.1`.
+
 To ensure we can build off a known version of LimeSurvey, we build images based upon the [git submodule](./LimeSurvey).
 
 > oc -n &lt;tools-namespace&gt; new-build &lt;tools-namespace&gt;/php:7.1~https://github.com/LimeSurvey/LimeSurvey.git#3.x-LTS --name=limesurvey-app
-
-```
-From https://registry-console-default.pathfinder.gov.bc.ca/registry
-❯ oc login --token CSRoOhXJwXpqYgKnEEccpRvXgGOdXnYXzIz1dJVGAt8 console.pathfinder.gov.bc.ca:8443
-```
 
 Tag with the correct release version, matching the major-minor tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey/tags). For example:
 
@@ -66,7 +63,7 @@ NOTE: To update this LimeSurvey [git submodule](https://git-scm.com/book/en/v2/G
 
 Deploy the DB using the correct SURVEY_NAME parameter (e.g. an acronym that is prefixed to `limesurvey`):
 
-> oc -n &lt;project&gt; new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=&lt;survey&gt;limesurvey
+> oc -n &lt;project&gt; new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=&lt;survey&gt;limesurvey
 
 All DB deployments are based on the out-of-the-box [OpenShift Database Image](https://docs.openshift.com/container-platform/3.11/using_images/db_images/postgresql.html).
 
@@ -124,61 +121,62 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
 
 ### Database Deployment
 
-> oc -n 599f0a-dev new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=acmelimesurvey
+> oc -n &lt;project&gt; new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=acmelimesurvey
 
 ```bash
---> Deploying template "599f0a-dev/nrms-postgresql-dc" for "./openshift/postgresql.dc.json" to project 599f0a-dev
+--> Deploying template "599f0a-dev/nrms-postgresql-dc" for "./openshift/postgresql.dc.yaml" to project 599f0a-dev
 
      * With parameters:
         * Survey Name=acmelimesurvey
         * Memory Limit=512Mi
-        * PostgreSQL Connection Password=supersecret # generated
+        * PostgreSQL Connection Password=VgB0rsOFXY2sOeXo # generated
         * Database Volume Capacity=1Gi
 
 --> Creating resources ...
-    secret "acmelimesurvey" created
-    persistentvolumeclaim "acmelimesurvey" created
-    deploymentconfig.apps.openshift.io "acmelimesurvey" created
-    service "acmelimesurvey" created
+    secret "acmelimesurvey-postgresql" created
+    persistentvolumeclaim "acmelimesurvey-postgresql" created
+    deploymentconfig.apps.openshift.io "acmelimesurvey-postgresql" created
+    service "acmelimesurvey-postgresql" created
 --> Success
     Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
-     'oc expose svc/acmelimesurvey'
+     'oc expose svc/acmelimesurvey-postgresql'
     Run 'oc status' to view your app.
 ```
 
 ### Application Deployment
 
-> oc -n 599f0a-dev new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=acmelimesurvey -p ADMIN_EMAIL=Wile.E.Coyote@gov.bc.ca -p ADMIN_NAME="ACME LimeSurvey Administrator"
+> oc -n &lt;project&gt; new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=acmelimesurvey -p ADMIN_EMAIL=Wile.E.Coyote@gov.bc.ca -p ADMIN_NAME="ACME LimeSurvey Administrator"
 
 ```bash
 --> Deploying template "599f0a-dev/nrms-limesurvey-dc" for "./openshift/limesurvey.dc.yaml" to project 599f0a-dev
 
      * With parameters:
-        * Namespace=b7cg3n-tools
+        * Namespace=599f0a-tools
         * Image Stream=limesurvey-app
-        * Version of LimeSurvey=v3.15
+        * Version of LimeSurvey=3.x-LTS
         * LimeSurvey Acronym=acmelimesurvey
         * Upload Folder size=1Gi
         * Administrator Account Name=admin
-        * Administrator Display Name=Administrator
-        * Administrator Passwords=4QUWfks3RJCuweoF # generated
+        * Administrator Display Name=ACME LimeSurvey Administrator
+        * Administrator Passwords=e5tybj8HwNxgVr6k # generated
         * Administrator Email Address=Wile.E.Coyote@gov.bc.ca
-        * CPU_LIMIT=500m
-        * MEMORY_LIMIT=1Gi
-        * CPU_REQUEST=100m
-        * MEMORY_REQUEST=512Mi
+        * CPU_LIMIT=100m
+        * MEMORY_LIMIT=256Mi
+        * CPU_REQUEST=50m
+        * MEMORY_REQUEST=200Mi
         * REPLICA_MIN=2
-        * REPLICA_MAX=3
+        * REPLICA_MAX=5
 
 --> Creating resources ...
     configmap "acmelimesurvey-app-config" created
     secret "acmelimesurvey-admin-cred" created
     persistentvolumeclaim "acmelimesurvey-app-uploads" created
     deploymentconfig.apps.openshift.io "acmelimesurvey-app" created
+    horizontalpodautoscaler.autoscaling "acmelimesurvey" created
     service "acmelimesurvey" created
     route.route.openshift.io "acmelimesurvey" created
 --> Success
-    Access your application via route 'acmelimesurvey.pathfinder.gov.bc.ca'
+    Access your application via route 'acmelimesurvey.apps.silver.devops.gov.bc.ca'
     Run 'oc status' to view your app.
 ```
 
@@ -186,7 +184,7 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
 
 After 20 - 30 seconds, at least one pod should be up. Verify that pods are running:
 
-> oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | awk '{print \$1}'
+> oc -n &lt;project&gt; get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | awk '{print \$1}'
 
 ```bash
 acmelimesurvey-app-1-5rxkd
@@ -195,7 +193,7 @@ acmelimesurvey-app-1-jg2k2
 
 Once you see running pods, remote into one of the pods:
 
-> oc -n 599f0a-dev rsh $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')
+> oc -n &lt;project&gt; rsh $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}')
 
 Run the install commands in this shell:
 
@@ -204,7 +202,7 @@ Run the install commands in this shell:
 
 ```bash
 Connecting to database...
-Using connection string pgsql:host=acmelimesurvey;port=5432;dbname=acmelimesurvey
+Using connection string pgsql:host=acmelimesurvey-postgresql;port=5432;dbname=acmelimesurvey
 Creating tables...
 Creating admin user...
 All done!
@@ -214,7 +212,7 @@ Type `exit` to exit the remote shell.
 
 #### Synchronize the Uploads folder
 
-> oc -n 599f0a-dev rsync upload $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}'):/var/lib/limesurvey
+> oc -n 599f0a-dev rsync upload $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}'):/var/lib/limesurvey
 
 ```bash
 building file list ... done
@@ -270,26 +268,11 @@ export SURVEY=paws
 
 ### Database Deployment
 
-> oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey
+> oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey
 
 ```bash
---> Deploying template "599f0a-dev/nrms-postgresql-dc" for "./openshift/postgresql.dc.json" to project 599f0a-dev
 
-     * With parameters:
-        * Survey Name=pawslimesurvey
-        * Memory Limit=512Mi
-        * PostgreSQL Connection Password=...
-        * Database Volume Capacity=1Gi
 
---> Creating resources ...
-    secret "pawslimesurvey-postgresql" created
-    persistentvolumeclaim "pawslimesurvey-postgresql" created
-    deploymentconfig.apps.openshift.io "pawslimesurvey-postgresql" created
-    service "pawslimesurvey-postgresql" created
---> Success
-    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
-     'oc expose svc/pawslimesurvey-postgresql'
-    Run 'oc status' to view your app.
 ```
 
 ### App Deployment
@@ -480,7 +463,7 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
 - to customize the deployment with higher/lower resources, using environment variables, follow these examples:
 
-  > oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.json -p SURVEY_NAME=${SURVEY}limesurvey -p MEMORY_LIMIT=768Mi -p DB_VOLUME_CAPACITY=1280Mi  
+  > oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p MEMORY_LIMIT=768Mi -p DB_VOLUME_CAPACITY=1280Mi  
   > oc -n ${PROJECT} new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator" -p REPLICA_MIN=1
 
 ## Versioning
@@ -521,6 +504,8 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
     Class LimeSurvey\PluginManager\DummyStorage located in ./application/libraries/PluginManager/Storage/DummyStorage.php does not comply with psr-4 autoloading standard. Skipping.
     Class LimeSurvey\PluginManager\iPluginStorage located in ./application/libraries/PluginManager/Storage/iPluginStorage.php does not comply with psr-4 autoloading standard. Skipping.
   ```
+
+Alternatively, switch to [Centos PHP7.1](https://hub.docker.com/layers/centos/php-71-centos7/7.1/images/sha256-1ff68d2e3445091561a258c94c33d73655c44f90fa408a91eeb74f496268f402?context=explore) image
 
 ### Added
 
