@@ -104,8 +104,9 @@ objects:
       messages and get full access to standard templates\n                'debug'=>0,\n
       \               'debugsql'=>0, // Set this to 1 to enanble sql logging, only active
       when debug = 2\n                // Update default LimeSurvey config here\n                'updatable'
-      \         => false,\n                'siteadminemail'     => $adminemail, // The
-      default email address of the site administrator\n                'siteadminbounce'
+      \         => false,\n                'ssl_disable_alert'  => true, // OCP has
+      TLS termination at edge\n                'siteadminemail'     => $adminemail,
+      // The default email address of the site administrator\n                'siteadminbounce'
       \   => $adminemail, // The default email address used for error notification of
       sent messages for the site administrator (Return-Path)\n                'siteadminname'
       \     => $adminname, // The name of the site administrator\n                'emailmethod'

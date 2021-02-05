@@ -443,7 +443,8 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
   > oc -n b&lt;project&gt; get --export configmap limesurvey-tmp-config -o yaml
 
-  d. copy-and-paste the ConfigMap specification, replacing the `ConfigMap->data` entry in the [Deployment Template](openshift/limesurvey.dc.yaml#L66)
+  d. copy-and-paste the ConfigMap specification, replacing the `ConfigMap->data` entry in the [Deployment Template](openshift/limesurvey.dc.yaml#L66); ensure the YAML
+  is indented the same amount of spaces as before
 
   e. re-deploy so that all running pods have the same configuration
 
