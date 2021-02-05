@@ -193,7 +193,7 @@ acmelimesurvey-app-1-jg2k2
 
 Once you see running pods, remote into one of the pods:
 
-> oc -n &lt;project&gt; rsh $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}')
+> oc -n &lt;project&gt; rsh $(oc -n &lt;project&gt get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}')
 
 Run the install commands in this shell:
 
@@ -212,7 +212,7 @@ Type `exit` to exit the remote shell.
 
 #### Synchronize the Uploads folder
 
-> oc -n 599f0a-dev rsync upload $(oc -n 599f0a-dev get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}'):/var/lib/limesurvey
+> oc -n &lt;project&gt; rsync upload $(oc -n &lt;project&gt; get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}'):/var/lib/limesurvey
 
 ```bash
 building file list ... done
