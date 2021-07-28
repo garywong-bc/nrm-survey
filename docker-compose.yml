@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:9
+    container_name: db
+    hostname: db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-limesurvey}
+      POSTGRES_USER: ${DB_USER:-limesurvey}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
+    volumes:
+      - ./db/data:/var/lib/postgresql/data        
+
+  app:
+    # image: acspri/limesurvey
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - 8080:80
+    # http://localhost:8080/index.php/admin/authentication/sa/login
+    environment: 
+      LIMESURVEY_DB_TYPE: ${DB_TYPE:-pgsql}
+      LIMESURVEY_DB_HOST: ${DB_HOST:-db}
+      LIMESURVEY_DB_PORT: ${DB_PORT:-5432}
+      LIMESURVEY_DB_NAME: ${DB_NAME:-limesurvey}
+      LIMESURVEY_DB_USER: ${DB_USER:-limesurvey}
+      LIMESURVEY_DB_PASSWORD: ${DB_PASSWORD:-example}
+      LIMESURVEY_ADMIN_USER: ${ADMIN_USER:-admin}
+      LIMESURVEY_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
+      LIMESURVEY_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+      LIMESURVEY_ADMIN_EMAIL: ${ADMIN_EMAIL:-gary.t.wong@gov.bc.ca}
+      # LIMESURVEY_DEBUG: 2
+      # LIMESURVEY_SQL_DEBUG: 1
+    volumes:
+      - ./backend/plugins:/var/www/html/plugins:delegated
+      - ./backend/upload:/var/www/html/upload:delegated
+      - ./backend/config:/var/www/html/application/config:delegated
+    depends_on:
+      - db
