@@ -1,7 +1,9 @@
 FROM php:7.4-apache
+# Derived from https://github.com/adamzammit/limesurvey-docker
 
 ENV DOWNLOAD_URL https://download.limesurvey.org/latest-stable-release/limesurvey5.0.11+210727.zip
 ENV DOWNLOAD_SHA256 0e23006e2b81e61a1469219678da67c0c5a9f0fdf2f1e128df20b822b3185634
+# https://account.limesurvey.org/stable-release 
 
 # install the PHP extensions we need
 RUN apt-get update \
@@ -73,3 +75,5 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 # ENTRYPOINT resets CMD
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
+
+USER www-data

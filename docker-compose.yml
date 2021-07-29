@@ -3,6 +3,7 @@ version: "3.8"
 services:
   db:
     image: postgres:9
+    user: postgres
     container_name: db
     hostname: db
     environment:
@@ -10,7 +11,7 @@ services:
       POSTGRES_USER: ${DB_USER:-limesurvey}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
     volumes:
-      - ./db/data:/var/lib/postgresql/data        
+      - ./db/data:/var/lib/postgresql/data:delegated   
 
   app:
     # image: acspri/limesurvey
@@ -22,18 +23,18 @@ services:
       - 8080:80
     # http://localhost:8080/index.php/admin/authentication/sa/login
     environment: 
-      LIMESURVEY_DB_TYPE: ${DB_TYPE:-pgsql}
-      LIMESURVEY_DB_HOST: ${DB_HOST:-db}
-      LIMESURVEY_DB_PORT: ${DB_PORT:-5432}
-      LIMESURVEY_DB_NAME: ${DB_NAME:-limesurvey}
-      LIMESURVEY_DB_USER: ${DB_USER:-limesurvey}
-      LIMESURVEY_DB_PASSWORD: ${DB_PASSWORD:-example}
-      LIMESURVEY_ADMIN_USER: ${ADMIN_USER:-admin}
-      LIMESURVEY_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
-      LIMESURVEY_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
-      LIMESURVEY_ADMIN_EMAIL: ${ADMIN_EMAIL:-gary.t.wong@gov.bc.ca}
-      # LIMESURVEY_DEBUG: 2
-      # LIMESURVEY_SQL_DEBUG: 1
+      DB_TYPE: ${DB_TYPE:-pgsql}
+      POSTGRESQL_DB_HOST: ${DB_HOST:-db}
+      POSTGRESQL_PORT: ${DB_PORT:-5432}
+      POSTGRESQL_DB_NAME: ${DB_NAME:-limesurvey}
+      POSTGRESQL_USERNAME: ${DB_USER:-limesurvey}
+      POSTGRESQL_PASSWORD: ${DB_PASSWORD:-example}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-gary.t.wong@gov.bc.ca}
+      # DEBUG: 2
+      # SQL_DEBUG: 1
     volumes:
       - ./backend/plugins:/var/www/html/plugins:delegated
       - ./backend/upload:/var/www/html/upload:delegated

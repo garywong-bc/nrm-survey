@@ -34,7 +34,7 @@ parameters:
   name: ADMIN_NAME
   value: Administrator
 - description: Password for the default LimeSurvey Administrator.
-  displayName: Administrator Passwords
+  displayName: Administrator Password
   from: "[a-zA-Z0-9]{16}"
   generate: expression
   name: ADMIN_PASSWORD
@@ -43,10 +43,14 @@ parameters:
   displayName: Administrator Email Address
   name: ADMIN_EMAIL
   required: true
+- description: The type of relational database (pgsql / mysql ).
+  displayName: Database Type
+  name: DB_TYPE
+  value: pgsql
 - name: CPU_LIMIT
-  value: 100m
+  value: 200m
 - name: MEMORY_LIMIT
-  value: 256Mi
+  value: 512Mi
 - name: CPU_REQUEST
   value: 50m
 - name: MEMORY_REQUEST

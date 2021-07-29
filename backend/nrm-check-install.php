@@ -1,19 +1,13 @@
 <?php
 
-$driver     = getenv('LIMESURVEY_DB_TYPE'); // 'mysql' or 'pgsql'
-$database   = getenv('LIMESURVEY_DB_NAME');
-$username   = getenv('LIMESURVEY_DB_USER');
-$password   = getenv('LIMESURVEY_DB_PASSWORD');
-$host       = getenv('LIMESURVEY_DB_HOST');
-$port       = getenv('LIMESURVEY_DB_PORT ');
+$driver     = getenv('DB_TYPE'); // 'mysql' or 'pgsql'
+$database   = getenv('POSTGRESQL_DB_NAME');
+$username   = getenv('POSTGRESQL_USERNAME');
+$password   = getenv('POSTGRESQL_PASSWORD');
+$host       = getenv('POSTGRESQL_DB_HOST');
+$port       = getenv('POSTGRESQL_PORT ');
 
 $numTables = 0;
-
-echo "------------------------------------------------\n";
-echo "Database Connection Test\n";
-echo "PHP ".PHP_VERSION."\n";
-echo "DB driver: $driver\n";
-echo "------------------------------------------------\n";
 
 if ($driver === 'mysql') {
     $connection = mysqli_connect($host, $username, $password, null, $port)
@@ -38,7 +32,6 @@ if ($driver === 'mysql') {
         "SELECT table_schema || '.' || table_name
                FROM information_schema.tables
                WHERE table_type = 'BASE TABLE'
-               AND table_name like 'lime_%'
                AND table_schema NOT IN ('pg_catalog', 'information_schema');
         "
     );
@@ -55,10 +48,8 @@ if ($driver === 'mysql') {
     die("⛔ Invalid driver `$driver`; must be `mysql` or `pgsql`.\n\n");
 }
 
-if (!$numTables) {
-    echo "🤷‍️ Connected but no tables found.\n\n";
-    exit(1);
-} else {
-    echo "👍 Connected and found LimeSurvey (lime_%) tables.\n\n";
-    exit(0);
+if (!$numTables) { // Connected but no tables found
+    exit("NOINSTALL");
+} else { // Connected and found LimeSurvey (lime_%) tables
+    exit("INSTALL");
 }
