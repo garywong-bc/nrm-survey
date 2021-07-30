@@ -1,4 +1,4 @@
-FROM docker-remote.artifacts.developer.gov.bc.caphp:7.4-apache
+FROM docker-remote.artifacts.developer.gov.bc.ca/php:7.4-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
 ENV DOWNLOAD_URL https://download.limesurvey.org/latest-stable-release/limesurvey5.0.11+210727.zip
