@@ -27,12 +27,12 @@ objects:
           uri: https://github.com/garywong-bc/nrm-survey
           ref: feature/from-dockerfile
         contextDir: backend
-      strategy:
-        pullSecret:
-          name: docker-pull-passthru         
+      strategy:       
         type: Docker
         dockerStrategy:
-            dockerfilePath: Dockerfile
+          dockerfilePath: Dockerfile
+          pullSecret:
+            name: docker-pull-passthru              
       completionDeadlineSeconds: 600
       failedBuildsHistoryLimit: 3
       successfulBuildsHistoryLimit: 3

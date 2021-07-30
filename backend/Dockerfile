@@ -1,4 +1,4 @@
-FROM docker-remote.artifacts.developer.gov.bc.ca/php:7.4-apache
+FROM docker-remote.artifacts.developer.gov.bc.caphp:7.4-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
 ENV DOWNLOAD_URL https://download.limesurvey.org/latest-stable-release/limesurvey5.0.11+210727.zip
@@ -38,7 +38,7 @@ RUN { \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 RUN set -x; \
-    curl -SL "$DOWNLOAD_URL" -o /tmp/lime.zip; \
+    curl -sL "$DOWNLOAD_URL" -o /tmp/lime.zip; \
     echo "$DOWNLOAD_SHA256 /tmp/lime.zip" | sha256sum -c -; \
     unzip /tmp/lime.zip -d /tmp; \
     mv /tmp/lime*/* /var/www/html/; \
