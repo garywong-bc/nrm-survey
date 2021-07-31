@@ -1,5 +1,17 @@
 ### Table of Contents
 
+
+```bash
+oc -n 245e18-tools process -f openshift/limesurvey.bc.yaml | oc -n 245e18-tools apply -f -
+
+ oc -n 245e18-tools start-build bc/limesurvey  
+
+ oc -n 245e18-tools get networkpolicy 
+ 
+ oc -n 245e18-tools delete is/limesurvey bc/limesurvey 
+```
+
+
 <!-- TOC depthTo:2 -->
 
 - [NRM LimeSurvey](#nrm-limesurvey)
@@ -7,11 +19,30 @@
   - [Files](#files)
   - [Build](#build)
   - [Deploy](#deploy)
+    - [Database Deployment](#database-deployment)
+    - [Application Deployment](#application-deployment)
+      - [Perform LimeSurvey installation](#perform-limesurvey-installation)
+      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder)
+    - [Log into the LimeSurvey app](#log-into-the-limesurvey-app)
   - [Example Deployment](#example-deployment)
+    - [Database Deployment](#database-deployment-1)
+    - [Application Deployment](#application-deployment-1)
+      - [Perform LimeSurvey installation](#perform-limesurvey-installation-1)
+      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder-1)
+    - [Log into the LimeSurvey app](#log-into-the-limesurvey-app-1)
   - [Using Environmental variables to deploy](#using-environmental-variables-to-deploy)
+    - [Set the environment variables](#set-the-environment-variables)
+    - [Database Deployment](#database-deployment-2)
+    - [App Deployment](#app-deployment)
+      - [Perform LimeSurvey installation](#perform-limesurvey-installation-2)
+      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder-2)
+    - [Log into the LimeSurvey app](#log-into-the-limesurvey-app-2)
   - [FAQ](#faq)
   - [Versioning](#versioning)
   - [[Unreleased]](#unreleased)
+    - [Added](#added)
+    - [Changed](#changed)
+    - [Removed](#removed)
 
 <!-- /TOC -->
 

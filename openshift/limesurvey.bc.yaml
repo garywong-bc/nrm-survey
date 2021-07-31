@@ -31,6 +31,13 @@ objects:
         type: Docker
         dockerStrategy:
           dockerfilePath: Dockerfile
+          buildArgs:
+            name: DOCKER_REGISTRY
+            value: docker-remote.artifacts.developer.gov.bc.ca
+            name: DOWNLOAD_URL
+            value: https://download.limesurvey.org/latest-stable-release/limesurvey5.0.12+210729.zip
+            name: DOWNLOAD_SHA256
+            value: 93539eeffffb1dbfc5b11b6ae539a51bd90c964f5127b96a23ab420c714fb5e2
           pullSecret:
             name: docker-pull-passthru              
       completionDeadlineSeconds: 600

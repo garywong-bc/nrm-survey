@@ -1,9 +1,10 @@
-FROM docker-remote.artifacts.developer.gov.bc.ca/php:7.4-apache
+ARG DOCKER_REGISTRY=docker.io/library
+FROM $DOCKER_REGISTRY/php:7.4-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
-ENV DOWNLOAD_URL https://download.limesurvey.org/latest-stable-release/limesurvey5.0.11+210727.zip
-ENV DOWNLOAD_SHA256 0e23006e2b81e61a1469219678da67c0c5a9f0fdf2f1e128df20b822b3185634
 # https://account.limesurvey.org/stable-release 
+ARG DOWNLOAD_URL=https://download.limesurvey.org/latest-stable-release/limesurvey5.0.12+210729.zip
+ARG DOWNLOAD_SHA256=93539eeffffb1dbfc5b11b6ae539a51bd90c964f5127b96a23ab420c714fb5e2
 
 # install the PHP extensions we need
 RUN apt-get update \
@@ -38,7 +39,7 @@ RUN { \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 RUN set -x; \
-    curl -sL "$DOWNLOAD_URL" -o /tmp/lime.zip; \
+    curl -SL "$DOWNLOAD_URL" -o /tmp/lime.zip; \
     echo "$DOWNLOAD_SHA256 /tmp/lime.zip" | sha256sum -c -; \
     unzip /tmp/lime.zip -d /tmp; \
     mv /tmp/lime*/* /var/www/html/; \
