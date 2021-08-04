@@ -3,8 +3,8 @@ FROM $DOCKER_REGISTRY/php:7.4-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
 # https://account.limesurvey.org/stable-release 
-ARG DOWNLOAD_URL=https://download.limesurvey.org/latest-stable-release/limesurvey5.0.12+210729.zip
-ARG DOWNLOAD_SHA256=93539eeffffb1dbfc5b11b6ae539a51bd90c964f5127b96a23ab420c714fb5e2
+ARG DOWNLOAD_URL=https://download.limesurvey.org/latest-stable-release/limesurvey5.0.13+210804.zip
+ARG DOWNLOAD_SHA256=ba9e181492012757818d98adc12423598a17397b0946c60cff089f609930f3ce
 
 # install the PHP extensions we need
 RUN apt-get update \
