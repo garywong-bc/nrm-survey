@@ -6,9 +6,9 @@ oc -n 245e18-tools process -f openshift/limesurvey.bc.yaml | oc -n 245e18-tools 
 
  oc -n 245e18-tools start-build bc/limesurvey  
 
- oc -n 245e18-tools get networkpolicy 
- 
  oc -n 245e18-tools delete is/limesurvey bc/limesurvey 
+
+ oc -n 245e18-tools get networkpolicy
 ```
 
 
@@ -457,10 +457,6 @@ Once logged as an Admin, you'll be brought to the Welcome page:
     oc -n ${PROJECT} delete all,secret,pvc -l app=${SURVEY}limesurvey
     oc -n ${PROJECT} delete horizontalpodautoscaler/${SURVEY}limesurvey
 ```
-
-  If the new version of LimeSurvey has `upload` folder changes, sync these changes to the [Uploads Folder](upload)
-
-- the LimeSurvey GUI wizard-style install is not used as we _enforce_ NRM-specific `config.php`. This file is always deployed into the running container's Configuration directory (read-only), and so LimeSurvey will not launch the LimeSurvey wizard. Launching the wizard without running the step above (i.e. a deployed `config.php`)will result in a `HTTP ERROR 500` error.
 
 - to dynamically get the pod name of the running pods, this is helpful:
 

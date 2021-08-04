@@ -5,6 +5,7 @@ FROM $DOCKER_REGISTRY/php:7.4-apache
 # https://account.limesurvey.org/stable-release 
 ARG DOWNLOAD_URL=https://download.limesurvey.org/latest-stable-release/limesurvey5.0.13+210804.zip
 ARG DOWNLOAD_SHA256=ba9e181492012757818d98adc12423598a17397b0946c60cff089f609930f3ce
+# NOTE: Need to update the same two ARGS in ../openshift/limesurvey.bc.yaml
 
 # install the PHP extensions we need
 RUN apt-get update \
