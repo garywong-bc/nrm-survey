@@ -70,7 +70,7 @@ Once deployed, any visitors to the site will require a modern browser (e.g. Edge
 
 - [OpenShift LimeSurvey app template](openshift/limesurvey.dc.yaml) for LimeSurvey PHP application, with PostgreSQL Database
 - [OpenShift Database service template](openshift/postgresql.dc.yaml) for a PostgreSQL Database
-- [LimeSurvey Configuration](application/config/config-postgresql.php) used during initial install of LimeSurvey with a PostgreSQL Database. It contains NRM-specific details such as the SMTP host and settings, and reply-to email addresses; most importantly, it integrates with the OpenShift pattern of exposing DB parameters as environmental variables in the shell. It is automatically deployed to the running container from the application's OpenShift ConfigMap.
+
 
 ## Build
 
@@ -299,16 +299,16 @@ export SURVEY=paws
 
 ### Database Deployment
 
-> oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey
 
 ```bash
-
-
+oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey
 ```
 
 ### App Deployment
 
-> oc -n ${PROJECT} new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator"
+```bash
+oc -n ${PROJECT} new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator"
+```
 
 ```bash
 --> Deploying template "599f0a-dev/nrms-limesurvey-dc" for "./openshift/limesurvey.dc.yaml" to project 599f0a-dev
@@ -435,55 +435,28 @@ Once logged as an Admin, you'll be brought to the Welcome page:
 
 - to clean-up application deployments:
 
-  `oc -n <project> delete cm/<survey>limesurvey-app-config secret/<survey>limesurvey-admin-cred dc/<survey>limesurvey-app svc/<survey>limesurvey route/<survey>limesurvey horizontalpodautoscaler/<survey>limesurvey`
+`oc -n <project> delete secret/<survey>limesurvey-admin-cred dc/<survey>limesurvey-app svc/<survey>limesurvey route/<survey>limesurvey horizontalpodautoscaler/<survey>limesurvey`
 
   NOTE: The Uploads Volume is left intact in case there is user-uploaded assets on it; if not (i.e. it's a brand-new survey):  
-   `oc -n <project> delete pvc/<survey>limesurvey-app-uploads`
+`oc -n <project> delete pvc/<survey>limesurvey-app-config pvc/<survey>limesurvey-app-upload pvc/<survey>limesurvey-app-plugins`
 
   or if using environment variables:
 
 ```bash
-    oc -n ${PROJECT} delete cm/${SURVEY}limesurvey-app-config secret/${SURVEY}limesurvey-admin-cred dc/${SURVEY}limesurvey-app svc/${SURVEY}limesurvey route/${SURVEY}limesurvey horizontalpodautoscaler/${SURVEY}limesurvey
-    oc -n ${PROJECT} delete pvc/${SURVEY}limesurvey-app-uploads
+    oc -n ${PROJECT} delete secret/${SURVEY}limesurvey-admin-cred dc/${SURVEY}limesurvey-app svc/${SURVEY}limesurvey route/${SURVEY}limesurvey horizontalpodautoscaler/${SURVEY}limesurvey
+    oc -n ${PROJECT} delete pvc/${SURVEY}limesurvey-app-config pvc/${SURVEY}limesurvey-app-upload pvc/${SURVEY}limesurvey-app-plugins
 ```
 
 - to reset _all_ deployed objects (this will destroy all data and persistent volumes). Only do this on a botched initial install or if you have the DB backed up and ready to restore into the new wiped database.
 
   `oc -n <project> delete all,secret,pvc -l app=<survey>limesurvey`
 
-  NOTE: The ConfigMap will be left as-is, so to delete:
-
-  `oc -n <project> delete cm/<survey>limesurvey-app-config`
-
   or if using environment variables:
 
 ```bash
     oc -n ${PROJECT} delete all,secret,pvc -l app=${SURVEY}limesurvey
-    oc -n ${PROJECT} delete cm/${SURVEY}limesurvey-app-config horizontalpodautoscaler/${SURVEY}limesurvey
+    oc -n ${PROJECT} delete horizontalpodautoscaler/${SURVEY}limesurvey
 ```
-
-- to recreate `config.php` in a ConfigMap form (e.g. due to a new version of LimeSurvey or additional NRM-specific setup parameters).
-
-  a. update the [ConfigMap Source](application/config/config-postgresql.php)
-
-  b. create a temporary ConfigMap in the OpenShift project:
-
-  > oc -n &lt;project&gt; create configmap limesurvey-tmp-config --from-file=config.php=./application/config/config-postgresql.php
-
-  c. let OpenShift generate the specification, as a template:
-
-  > oc -n b&lt;project&gt; get --export configmap limesurvey-tmp-config -o yaml
-
-  d. copy-and-paste the ConfigMap specification, replacing the `ConfigMap->data` entry in the [Deployment Template](openshift/limesurvey.dc.yaml#L66); ensure the YAML
-  is indented the same amount of spaces as before
-
-  e. re-deploy so that all running pods have the same configuration
-
-  f. Delete the temporary OpenShift secret
-
-  > oc -n &lt;project&gt; delete cm/limesurvey-tmp-config
-
-  NOTE: The `config.php` is deployed as read-only from the OpenShift ConfigMap in the [DeploymentConfig](./openshift/limesurvey.dc.yaml) file. Any update to this file implies that you must manually redeploy the application (but not necessarily the database); this ConfigMap is not mounted as an `Environment From`, so is not a trigger for re-deployment.
 
   If the new version of LimeSurvey has `upload` folder changes, sync these changes to the [Uploads Folder](upload)
 

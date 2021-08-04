@@ -71,6 +71,7 @@ VOLUME ["/var/www/html/upload"]
 VOLUME ["/var/www/html/application/config"]
 
 COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
+COPY nrm-config/config-nrm-*.php /var/lime/application/config/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 
 # ENTRYPOINT resets CMD

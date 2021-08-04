@@ -22,8 +22,11 @@ run:
 	docker-compose up -d app
 	docker-compose logs -f
 
-db-delete: clean
+reset: clean
 	rm -rf db/data/*
+	rm -rf backend/config/*
+	rm -rf backend/plugins/*
+	rm -rf backend/upload/*
 
 db-start:
 	docker-compose up -d db
@@ -32,7 +35,6 @@ db-start:
 app-start:
 	docker-compose up -d app
 	docker-compose logs -f app
-
 
 db-shell:
 	docker-compose exec db /bin/bash
