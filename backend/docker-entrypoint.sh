@@ -88,12 +88,11 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # set_config 'debug' "$DEBUG"
     # set_config 'debugsql' "$SQL_DEBUG"
 
-# GW commented out lines 1,2,4,5 to test out OCP deployment
-    # chown www-data:www-data -R tmp 
-    # chown www-data:www-data -R plugins
+    chown www-data:www-data -R tmp 
+    chown www-data:www-data -R plugins
     mkdir -p upload/surveys
-    # chown www-data:www-data -R upload 
-    # chown www-data:www-data -R application/config
+    chown www-data:www-data -R upload 
+    chown www-data:www-data -R application/config
 
 	DBSTATUS=$(TERM=dumb php -f /usr/local/bin/nrm-check-install.php)
 
