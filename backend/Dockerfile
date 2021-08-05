@@ -75,8 +75,8 @@ COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
 COPY nrm-config/config-nrm-*.php /var/lime/application/config/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 
+# USER www-data
+
 # ENTRYPOINT resets CMD
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
-
-USER www-data
