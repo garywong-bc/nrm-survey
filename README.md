@@ -22,20 +22,17 @@ oc -n 245e18-tools process -f openshift/limesurvey.bc.yaml | oc -n 245e18-tools 
     - [Database Deployment](#database-deployment)
     - [Application Deployment](#application-deployment)
       - [Perform LimeSurvey installation](#perform-limesurvey-installation)
-      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder)
     - [Log into the LimeSurvey app](#log-into-the-limesurvey-app)
   - [Example Deployment](#example-deployment)
     - [Database Deployment](#database-deployment-1)
     - [Application Deployment](#application-deployment-1)
       - [Perform LimeSurvey installation](#perform-limesurvey-installation-1)
-      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder-1)
     - [Log into the LimeSurvey app](#log-into-the-limesurvey-app-1)
   - [Using Environmental variables to deploy](#using-environmental-variables-to-deploy)
     - [Set the environment variables](#set-the-environment-variables)
     - [Database Deployment](#database-deployment-2)
     - [App Deployment](#app-deployment)
       - [Perform LimeSurvey installation](#perform-limesurvey-installation-2)
-      - [Synchronize the Uploads folder](#synchronize-the-uploads-folder-2)
     - [Log into the LimeSurvey app](#log-into-the-limesurvey-app-2)
   - [FAQ](#faq)
   - [Versioning](#versioning)
@@ -119,22 +116,6 @@ Run the [command line install](<https://manual.limesurvey.org/Installation_using
 
 NOTE that the `${ADMIN_*}` text is exactly as written, since the app has access to these environment variables (set during the `new-app` step).
 
-#### Synchronize the Uploads folder
-
-As OpenShift pods can be subsequently redeployed at any time, we synchronize all `/upload` folders and files onto our mounted PersistentVolume.
-
-This is important only if the Survey Administrator has customized the CSS or uploaded any custom web media assets.
-
-Once a pod is running, use `oc rsync` with the correct SURVEY_NAME such as:
-
-> oc -n &lt;project&gt; rsync upload $(oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}'):/var/lib/limesurvey
-
-<details><summary>When upgrading to a newer release</summary>
-
-If upgrading an active survey to a newer LimeSurvey [release](https://github.com/LimeSurvey/LimeSurvey/releases), you'll need to do re-synchronize (even without customized CSS or custom web media assets). The newer release may have added or modified web assets.
-
-This need only be done once per replica set (i.e. `rsh` into one pod, rsync, and then all replicas will see this change).
-
 **TODO** back up as part of 'backup containers' for user uploaded files?
 
 </details>
@@ -213,61 +194,8 @@ As a concrete example of a survey with the acronym `acme`, deployed in the proje
 
 #### Perform LimeSurvey installation
 
-After 20 - 30 seconds, at least one pod should be up. Verify that pods are running:
+Automatic now .. but let the DB spin up first.
 
-> oc -n &lt;project&gt; get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | awk '{print \$1}'
-
-```bash
-acmelimesurvey-app-1-5rxkd
-acmelimesurvey-app-1-jg2k2
-```
-
-Once you see running pods, remote into one of the pods:
-
-> oc -n &lt;project&gt; rsh $(oc -n &lt;project&gt get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}')
-
-Run the install commands in this shell:
-
-> cd application/commands/  
-> php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
-
-```bash
-Connecting to database...
-Using connection string pgsql:host=acmelimesurvey-postgresql;port=5432;dbname=acmelimesurvey
-Creating tables...
-Creating admin user...
-All done!
-```
-
-Type `exit` to exit the remote shell.
-
-#### Synchronize the Uploads folder
-
-> oc -n &lt;project&gt; rsync upload $(oc -n &lt;project&gt; get pods | grep acmelimesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}'):/var/lib/limesurvey
-
-```bash
-building file list ... done
-upload/
-upload/readme.txt
-upload/admintheme/
-upload/admintheme/index.html
-upload/labels/
-upload/labels/index.html
-upload/labels/readme.txt
-upload/surveys/
-upload/surveys/.htaccess
-upload/themes/
-upload/themes/index.html
-upload/themes/survey/
-upload/themes/survey/index.html
-upload/themes/survey/generalfiles/
-upload/themes/survey/generalfiles/index.html
-
-sent 2314 bytes  received 238 bytes  1701.33 bytes/sec
-total size is 1575  speedup is 0.62
-```
-
-Type `exit` to exit the remote shell.
 
 ### Log into the LimeSurvey app
 
@@ -302,102 +230,71 @@ export SURVEY=paws
 
 ```bash
 oc -n ${PROJECT} new-app --file=./openshift/postgresql.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey
+--> Deploying template "245e18-dev/nrms-postgresql-dc" for "./openshift/postgresql.dc.yaml" to project 245e18-dev
+
+     * With parameters:
+        * Survey Name=newlimesurvey
+        * Memory Limit=512Mi
+        * PostgreSQL Connection Password=gjbrrc5xhJFj78n5 # generated
+        * Database Volume Capacity=1Gi
+
+--> Creating resources ...
+    secret "newlimesurvey-postgresql" created
+    persistentvolumeclaim "newlimesurvey-postgresql" created
+    deploymentconfig.apps.openshift.io "newlimesurvey-postgresql" created
+    service "newlimesurvey-postgresql" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/newlimesurvey-postgresql' 
+    Run 'oc status' to view your app.
 ```
 
 ### App Deployment
 
+Wait about 30 seconds, and/or confirm via the GUI that the DB is up:
+
 ```bash
-oc -n ${PROJECT} new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=John.Doe@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator"
+oc -n ${PROJECT} new-app --file=./openshift/limesurvey.dc.yaml -p SURVEY_NAME=${SURVEY}limesurvey -p ADMIN_EMAIL=Gary.T.Wong@gov.bc.ca -p ADMIN_NAME="IITD LimeSurvey Administrator"
 ```
 
 ```bash
---> Deploying template "599f0a-dev/nrms-limesurvey-dc" for "./openshift/limesurvey.dc.yaml" to project 599f0a-dev
+--> Deploying template "245e18-dev/nrms-limesurvey-dc" for "./openshift/limesurvey.dc.yaml" to project 245e18-dev
 
      * With parameters:
-        * Namespace=599f0a-tools
-        * Image Stream=limesurvey-app
-        * Version of LimeSurvey=3.x-LTS
-        * LimeSurvey Acronym=pawslimesurvey
+        * Namespace=245e18-tools
+        * Image Stream=limesurvey
+        * Version of LimeSurvey=5.x-LTS
+        * LimeSurvey Acronym=newlimesurvey
         * Upload Folder size=1Gi
         * Administrator Account Name=admin
         * Administrator Display Name=IITD LimeSurvey Administrator
-        * Administrator Passwords=...
-        * Administrator Email Address=x@gov.bc.ca
-        * CPU_LIMIT=100m
-        * MEMORY_LIMIT=256Mi
+        * Administrator Password=QIL3ix66NrCBmsIx # generated
+        * Administrator Email Address=Gary.T.Wong@gov.bc.ca
+        * Database Type=pgsql
+        * CPU_LIMIT=200m
+        * MEMORY_LIMIT=512Mi
         * CPU_REQUEST=50m
         * MEMORY_REQUEST=200Mi
         * REPLICA_MIN=2
         * REPLICA_MAX=5
 
 --> Creating resources ...
-    configmap "pawslimesurvey-app-config" created
-    secret "pawslimesurvey-admin-cred" created
-    persistentvolumeclaim "pawslimesurvey-app-uploads" created
-    deploymentconfig.apps.openshift.io "pawslimesurvey-app" created
-    horizontalpodautoscaler.autoscaling "pawslimesurvey" created
-    service "pawslimesurvey" created
-    route.route.openshift.io "pawslimesurvey" created
+    secret "newlimesurvey-admin-cred" created
+    persistentvolumeclaim "newlimesurvey-app-upload" created
+    persistentvolumeclaim "newlimesurvey-app-config" created
+    persistentvolumeclaim "newlimesurvey-app-plugins" created
+    deploymentconfig.apps.openshift.io "newlimesurvey-app" created
+    horizontalpodautoscaler.autoscaling "newlimesurvey" created
+    service "newlimesurvey" created
+    route.route.openshift.io "newlimesurvey" created
 --> Success
-    Access your application via route 'pawslimesurvey.apps.silver.devops.gov.bc.ca'
+    Access your application via route 'newlimesurvey.apps.silver.devops.gov.bc.ca' 
     Run 'oc status' to view your app.
 ```
 
 #### Perform LimeSurvey installation
 
-After 20 to 30 seconds, at least one pod should be up. Verify that pods are running:
-
-> oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | awk '{print \$1}'
-
-```bash
-iitdlimesurvey-app-1-2z7tj
-iitdlimesurvey-app-1-pf8q4
-```
-
-Once you see running pods, remote into one of the pods:
-
-> oc -n ${PROJECT} rsh $(oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}')
-
-```bash
-cd application/commands/
-php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
-```
-
-```bash
-Connecting to database...
-Using connection string pgsql:host=pawslimesurvey-postgresql;port=5432;dbname=pawslimesurvey
-Creating tables...
-Creating admin user...
-All done!
-```
-
-Type `exit` to exit the remote shell.
-
-#### Synchronize the Uploads folder
-
-> oc -n ${PROJECT} rsync upload $(oc -n ${PROJECT} get pods | grep ${SURVEY}limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print \$1}'):/var/lib/limesurvey
-
-```bash
-building file list ... done
-upload/
-upload/readme.txt
-upload/admintheme/
-upload/admintheme/index.html
-upload/labels/
-upload/labels/index.html
-upload/labels/readme.txt
-upload/surveys/
-upload/surveys/.htaccess
-upload/themes/
-upload/themes/index.html
-upload/themes/survey/
-upload/themes/survey/index.html
-upload/themes/survey/generalfiles/
-upload/themes/survey/generalfiles/index.html
-
-sent 2314 bytes  received 238 bytes  1701.33 bytes/sec
-total size is 1575  speedup is 0.62
-```
+Automatic now..
 
 ### Log into the LimeSurvey app
 
