@@ -43,11 +43,15 @@ parameters:
   displayName: Administrator Email Address
   name: ADMIN_EMAIL
   required: true
+<<<<<<< HEAD
 - description: The type of relational database (pgsql / mysql ); currently only pgsql is supported
   displayName: Database Type
   name: DB_TYPE
   value: pgsql
 - name: CPU_LIMIT
+=======
+  - name: CPU_LIMIT
+>>>>>>> master
   value: 200m
 - name: MEMORY_LIMIT
   value: 512Mi
