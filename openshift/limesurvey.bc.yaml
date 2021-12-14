@@ -1,0 +1,69 @@
+---
+kind: Template
+apiVersion: v1
+labels:
+metadata:
+  name: "nrms-limesurvey-bc"
+  app: "${NAME}"
+objects:
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: "${NAME}"
+      app: "${NAME}"
+    spec:
+      lookupPolicy:
+        local: false
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: "${NAME}"
+      labels:
+        buildconfig: "${NAME}"
+    spec:
+      source:
+        type: Git
+        git:
+          uri: https://github.com/garywong-bc/nrm-survey
+          ref: feature/from-dockerfile
+        contextDir: backend
+      strategy:       
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile
+          buildArgs:
+            - name: DOCKER_REGISTRY
+              value: docker-remote.artifacts.developer.gov.bc.ca
+            - name: DOWNLOAD_URL
+              value: https://download.limesurvey.org/latest-stable-release/limesurvey5.0.13+210804.zip
+            - name: DOWNLOAD_SHA256
+              value: ba9e181492012757818d98adc12423598a17397b0946c60cff089f609930f3ce
+          pullSecret:
+            name: docker-pull-passthru              
+      completionDeadlineSeconds: 600
+      failedBuildsHistoryLimit: 3
+      successfulBuildsHistoryLimit: 3
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${NAME}:${VERSION}"
+      postCommit: {}
+      resources:
+        limits:
+          cpu: 2000m
+          memory: 2Gi
+        requests:
+          cpu: 1000m
+          memory: 1Gi
+      runPolicy: SerialLatestOnly
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the objects defined in this template.
+    required: true
+    value: limesurvey
+  - name: VERSION
+    displayName: Image version tag
+    description: The version tag of the built image
+    required: true
+    value: 5.x-LTS
