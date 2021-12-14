@@ -77,7 +77,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # set_config() {
     #     key="$1"
     #     value="$2"
-    #     sed -i "/'$key'/s>\(.*\)>$value,1"  application/config/config.php
+    #     sed -i "/'$key'/s>\(.*\)>$value,1"  config/config.php
     # }
 
     # set_config 'connectionString' "'$DB_TYPE:host=$POSTGRESQL_DB_HOST;port=$POSTGRESQL_PORT;dbname=$POSTGRESQL_DB_NAME;'"
@@ -88,11 +88,11 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # set_config 'debug' "$DEBUG"
     # set_config 'debugsql' "$SQL_DEBUG"
 
-    chown www-data:www-data -R tmp 
-    chown www-data:www-data -R plugins
-    mkdir -p upload/surveys
-    chown www-data:www-data -R upload 
-    chown www-data:www-data -R application/config
+    # chown www-data:0 -R tmp 
+    # chown www-data:0 -R plugins
+    # mkdir -p upload/surveys
+    # chown www-data:0 -R upload 
+    # chown www-data:0 -R config
 
 	DBSTATUS=$(TERM=dumb php -f /usr/local/bin/nrm-check-install.php)
 

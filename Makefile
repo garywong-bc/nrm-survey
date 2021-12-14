@@ -12,14 +12,15 @@ clean:
 
 build:
 	docker buildx bake -f docker-compose.yml \
-		--set app.args.DOCKER_REGISTRY=docker.io/library \
-		--set app.args.DOWNLOAD_URL=https://download.limesurvey.org/latest-stable-release/limesurvey5.0.12+210729.zip \
-		--set app.args.DOWNLOAD_SHA256=93539eeffffb1dbfc5b11b6ae539a51bd90c964f5127b96a23ab420c714fb5e2 
+		--set app.args.DOCKER_REGISTRY=docker.io/library
 
+build-nocache:
+	docker buildx bake --no-cache -f docker-compose.yml \
+		--set app.args.DOCKER_REGISTRY=docker.io/library
+
+# http://localhost:8080/index.php/admin/authentication/sa/login
 run: 
-	docker-compose up -d db
-	sleep 20 # Initial startup takes longer
-	docker-compose up -d app
+	docker-compose up -d
 	docker-compose logs -f
 
 reset: clean

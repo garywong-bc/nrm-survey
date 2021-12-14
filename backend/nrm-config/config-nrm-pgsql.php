@@ -80,7 +80,7 @@ return array(
                 'protocol'           => 'smtp',
                 'emailsmtphost'      => 'apps.smtp.gov.bc.ca', // Sets the SMTP host. You can also specify a different port than 25 by using
                 'emailsmtpssl'       => '', // Set this to 'ssl' or 'tls' to use SSL/TLS for SMTP connection
-                'uploaddir'          => "/var/lib/limesurvey/upload", // Persistent upload folder, shared amongst pods 		        
+                'uploaddir'          => "/var/www/html/upload", // Persistent upload folder, shared amongst pods 		        
         )
 );
 /* End of file config.php */

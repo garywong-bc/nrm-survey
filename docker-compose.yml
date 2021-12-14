@@ -11,7 +11,12 @@ services:
       POSTGRES_USER: ${DB_USER:-limesurvey}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
     volumes:
-      - ./db/data:/var/lib/postgresql/data:delegated   
+      - ./db/data:/var/lib/postgresql/data:delegated
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
 
   app:
     # image: acspri/limesurvey
@@ -33,6 +38,8 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
       ADMIN_NAME: ${ADMIN_NAME:-Administrator}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-gary.t.wong@gov.bc.ca}
+      APACHE_RUN_USER: default_user
+      APACHE_RUN_GROUP: root
       # DEBUG: 2
       # SQL_DEBUG: 1
     volumes:
@@ -41,3 +48,9 @@ services:
       - ./backend/config:/var/www/html/application/config:delegated
     depends_on:
       - db
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "dockerize -wait tcp://db:5432 -timeout 30s -- docker-entrypoint.sh apache2-foreground",
+      ]
