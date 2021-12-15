@@ -45,3 +45,6 @@ db-term:
 
 app-shell:
 	docker-compose exec app /bin/bash
+
+root-app-shell:
+	docker-compose exec -u root app /bin/bash
