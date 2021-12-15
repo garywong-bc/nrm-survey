@@ -106,7 +106,7 @@ Run the [command line install](<https://manual.limesurvey.org/Installation_using
 
 > oc -n &lt;project&gt; rsh $(oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')
 
-> cd application/commands/
+> cd /var/www/html/application/commands/
 > php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
 
 NOTE that the `${ADMIN_*}` text is exactly as written, since the app has access to these environment variables (set during the `new-app` step).
@@ -315,7 +315,7 @@ Once logged as an Admin, you'll be brought to the Welcome page:
   or if using environment variables:
 
 ```bash
-    oc -n ${PROJECT} delete all,secret,pvc,hpa -l app=${SURVEY}
+    oc -n ${PROJECT} delete all,secret,pvc,hpa -l app=${SURVEY}limesurvey
 ```
 
 - to dynamically get the pod name of the running pods, this is helpful:
