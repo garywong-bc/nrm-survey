@@ -60,8 +60,8 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 
     if ! [ -e application/config/config.php ]; then
         echo >&2 "No config file in $(pwd) Copying default config file..."
-		#Copy default config file but also allow for the addition of attributes
-        cp /var/lime/application/config/config-nrm-$DB_TYPE.php application/config/config.php
+		# Copy default config file but also allow for the addition of attributes
+        cp application/config/config-nrm-$DB_TYPE.php application/config/config.php
     fi
 
     # see http://stackoverflow.com/a/2705678/433558

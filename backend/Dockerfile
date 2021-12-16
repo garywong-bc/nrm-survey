@@ -39,22 +39,22 @@ RUN { \
     echo 'opcache.enable_cli=1'; \
     } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
-
-# to join later
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && useradd --comment "Apache User, integrated with OpenShift default user" -g root -m -u 1001 default_user  
 
-RUN useradd --comment "Apache User, integrated with OpenShift default user" -g root -m -u 1001 default_user  
+COPY nrm-config/config-*-pgsql.php /tmp
 
 RUN set -x; \
     wget "$GITHUB_REPO/archive/refs/tags/$GITHUB_TAG.tar.gz" \
     && tar -zxf $GITHUB_TAG.tar.gz --strip-components=1 \
     && rm $GITHUB_TAG.tar.gz \
-    && chown -R default_user:root /var/www/html \
     && mkdir -p /var/lime/application/config \
     && mkdir -p /var/lime/upload \
     && mkdir -p /var/lime/plugins \
+    && cp /tmp/config-*-pgsql.php /var/www/html/application/config/ \
+    && chown -R default_user:root /var/www/html \
     && cp -dpR /var/www/html/application/config/* /var/lime/application/config \
     && cp -dpR /var/www/html/upload/* /var/lime/upload \
     && cp -dpR /var/www/html/plugins/* /var/lime/plugins
@@ -81,7 +81,6 @@ VOLUME ["/var/www/html/upload"]
 VOLUME ["/var/www/html/application/config"]
 
 COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
-COPY nrm-config/config-nrm-pgsql.php /var/www/html/application/config/config.php
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 
 USER default_user
