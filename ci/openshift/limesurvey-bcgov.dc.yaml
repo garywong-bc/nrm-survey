@@ -179,6 +179,13 @@ objects:
           containers:
             - name: "${SURVEY_NAME}limesurvey-app"
               image: " "
+              command: ["/bin/sh"]
+              args:
+                [
+                  "-c",
+                  "dockerize -wait tcp://${POSTGRESQL_DB_HOST}:${POSTGRESQL_PORT} -timeout 30s",
+                  "-- docker-entrypoint.sh apache2-foreground",
+                ]
               ports:
                 - containerPort: 8080
                   protocol: TCP

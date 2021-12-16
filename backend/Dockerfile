@@ -79,6 +79,5 @@ VOLUME ["/var/www/html/upload"]
 VOLUME ["/var/www/html/application/config"]
 
 COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
-RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 
 USER default_user
