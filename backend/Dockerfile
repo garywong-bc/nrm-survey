@@ -76,8 +76,6 @@ RUN sed -i '$ a ServerName localhost'     /etc/apache2/apache2.conf   \
 
 VOLUME ["/var/www/html/plugins"]
 VOLUME ["/var/www/html/upload"]
-
-#ensure that the config is persisted especially for security.php
 VOLUME ["/var/www/html/application/config"]
 
 COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
