@@ -169,13 +169,13 @@ objects:
             - name: "${SURVEY_NAME}limesurvey-app-plugins"
               persistentVolumeClaim:
                 claimName: "${SURVEY_NAME}limesurvey-app-plugins"
-          initContainers:
-            - name: upload-data-permission-fix
-              image: busybox:latest
-              command: ["/bin/chmod", "-R", "777", "/var/www/html/upload"]
-              volumeMounts:
-                - name: "${SURVEY_NAME}limesurvey-app-upload"
-                  mountPath: "/var/www/html/upload"
+          # initContainers:
+          #   - name: upload-data-permission-fix
+          #     image: busybox:latest
+          #     command: ["/bin/chmod", "-R", "777", "/var/www/html/upload"]
+          #     volumeMounts:
+          #       - name: "${SURVEY_NAME}limesurvey-app-upload"
+          #         mountPath: "/var/www/html/upload"
           containers:
             - name: "${SURVEY_NAME}limesurvey-app"
               image: " "

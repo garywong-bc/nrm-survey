@@ -14,6 +14,7 @@ build:
 	docker buildx bake -f docker-compose.yml \
 		--set app.args.DOCKER_REGISTRY=docker.io/library
 
+# docker-compose up --build --remove-orphans --force-recreate
 build-nocache:
 	docker buildx bake --no-cache -f docker-compose.yml \
 		--set app.args.DOCKER_REGISTRY=docker.io/library
