@@ -102,16 +102,7 @@ NOTE: The ADMIN_EMAIL is required, and you override the ADMIN_USER and ADMIN_NAM
 
 #### Perform LimeSurvey installation
 
-Run the [command line install](<https://manual.limesurvey.org/Installation_using_a_command_line_interface_(CLI)>) via `oc rsh`, with the correct SURVEY_NAME and credentials:
-
-> oc -n &lt;project&gt; rsh $(oc -n &lt;project&gt; get pods | grep &lt;survey&gt;limesurvey-app- | grep -v deploy | grep Running | head -n 1 | awk '{print $1}')
-
-> cd /var/www/html/application/commands/
-> php console.php install ${ADMIN_USER} ${ADMIN_PASSWORD} ${ADMIN_NAME} ${ADMIN_EMAIL}
-
-NOTE that the `${ADMIN_*}` text is exactly as written, since the app has access to these environment variables (set during the `new-app` step).
-
-**TODO** back up as part of 'backup containers' for user uploaded files?
+NOTE: Automatically done now as part of `docker-entry.sh`
 
 </details>
 

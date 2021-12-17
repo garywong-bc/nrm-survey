@@ -55,6 +55,7 @@ RUN set -x; \
     && mkdir -p /var/lime/plugins \
     && cp /tmp/config-*-pgsql.php /var/www/html/application/config/ \
     && chown -R default_user:root /var/www/html \
+    && chmod -R g+w /var/www/html \
     && cp -dpR /var/www/html/application/config/* /var/lime/application/config \
     && cp -dpR /var/www/html/upload/* /var/lime/upload \
     && cp -dpR /var/www/html/plugins/* /var/lime/plugins

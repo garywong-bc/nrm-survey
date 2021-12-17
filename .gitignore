@@ -1,6 +1,6 @@
 .DS_Store
 .env
-!backend/config/config-nrm-*.php
+!backend/config/config-bcgov-*.php
 backend/config
 backend/plugins
 backend/upload
