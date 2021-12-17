@@ -70,10 +70,13 @@ RUN { \
     echo 'date.timezone=UTC'; \
     } > /usr/local/etc/php/conf.d/uploads.ini
 
-#Set Apache defaults for Limesurvey (ServerName and default port)
+# Set Apache defaults for Limesurvey (ServerName and default port), and
+# also enable "/server-status?auto" for integration with OCP4 Sysdig
+
 RUN sed -i '$ a ServerName localhost'     /etc/apache2/apache2.conf   \
     && sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf    \
-    && sed -i 's/<VirtualHost \*\:80>/<VirtualHost *:8080>/g' /etc/apache2/sites-enabled/000-default.conf
+    && sed -i 's/<VirtualHost \*\:80>/<VirtualHost *:8080>/g' /etc/apache2/sites-enabled/000-default.conf \
+    && sed -i '/RewriteCond %{REQUEST_FILENAME} !-d$/a \    RewriteCond %{REQUEST_URI} !=/server-status' /var/www/html/.htaccess
 
 VOLUME ["/var/www/html/plugins"]
 VOLUME ["/var/www/html/upload"]
