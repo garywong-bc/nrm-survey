@@ -45,8 +45,12 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 		exit 1
 	fi
 
-    echo >&2 "Copying default container default config files into config volume..."
-    cp -dR /var/lime/application/config/* application/config
+    if ! [ -e application/config/config.php ]; then
+        echo >&2 "Copying default container default config files into config volume..."
+        cp -dR /var/lime/application/config/* application/config
+        echo >&2 "Enabling DB-specific config file ..."
+        cp application/config/config-bcgov-$DB_TYPE.php application/config/config.php
+    fi
 
     if ! [ -e plugins/index.html ]; then
         echo >&2 "No index.html file in plugins dir in $(pwd) Copying defaults..."
@@ -56,12 +60,6 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     if ! [ -e upload/index.html ]; then
         echo >&2 "No index.html file upload dir in $(pwd) Copying defaults..."
         cp -dR /var/lime/upload/* upload
-    fi
-
-    if ! [ -e application/config/config.php ]; then
-        echo >&2 "No config file in $(pwd) Copying default config file..."
-		#Copy default config file but also allow for the addition of attributes
-        cp /var/lime/application/config/config-nrm-$DB_TYPE.php application/config/config.php
     fi
 
     # see http://stackoverflow.com/a/2705678/433558
@@ -103,7 +101,6 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 
     #flush asssets (clear cache on restart)
     php application/commands/console.php flushassets
-
 fi
 
 exec "$@"
