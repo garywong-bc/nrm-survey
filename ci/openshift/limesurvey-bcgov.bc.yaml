@@ -27,7 +27,6 @@ objects:
         type: Git
         git:
           uri: https://github.com/garywong-bc/nrm-survey
-          ref: fix/upload-config
         contextDir: backend
       strategy:
         type: Docker
