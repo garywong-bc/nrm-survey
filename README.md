@@ -45,6 +45,14 @@ For build:
 - Administrator access to an [Openshift](https://console.apps.silver.devops.gov.bc.ca/k8s/cluster/projects) Project `*-tools` namespace
 - the [oc](https://docs.openshift.com/container-platform/4.6/cli_reference/openshift_cli/getting-started-cli.html) CLI tool, installed on your local workstation
 - access to this public [GitHub Repo](./)
+- docker-pull-passthru secret referencing [artifactory credentials](https://developer.gov.bc.ca/Developer-Tools/Artifact-Repositories-(Artifactory))
+```bash
+oc -n <tools-namespace> create secret docker-registry docker-pull-passthru \
+--docker-server=docker-remote.artifacts.developer.gov.bc.ca \
+--docker-username=default-<namespace>-<random> \
+--docker-password=<random> \
+--docker-email=<git username>@<tools-namespace>.local
+```
 
 Once built, this image may be deployed to a separate `*-dev`, `*-test`, or `*-prod` namespace with the appropriate `system:image-puller` role.
 
