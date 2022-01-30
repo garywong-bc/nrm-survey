@@ -44,7 +44,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && useradd --comment "Apache User, integrated with OpenShift default user" -g root -m -u 1001 default_user  
 
-COPY nrm-config/config-*-pgsql.php /tmp
+COPY azure-config/config-*-pgsql.php /tmp
 
 RUN set -x; \
     wget "$GITHUB_REPO/archive/refs/tags/$GITHUB_TAG.tar.gz" \

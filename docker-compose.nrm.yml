@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:9
+    user: postgres
+    container_name: db
+    hostname: db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-limesurvey}
+      POSTGRES_USER: ${DB_USER:-limesurvey}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
+    volumes:
+      - ./db/data:/var/lib/postgresql/data:delegated
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
+
+  app:
+    # image: acspri/limesurvey
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - 8080:8080
+    # http://localhost:8080/index.php/admin/authentication/sa/login
+    environment: 
+      DB_TYPE: ${DB_TYPE:-pgsql}
+      POSTGRESQL_DB_HOST: ${DB_HOST:-db}
+      POSTGRESQL_PORT: ${DB_PORT:-5432}
+      POSTGRESQL_DB_NAME: ${DB_NAME:-limesurvey}
+      POSTGRESQL_USERNAME: ${DB_USER:-limesurvey}
+      POSTGRESQL_PASSWORD: ${DB_PASSWORD:-example}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-gary.t.wong@gov.bc.ca}
+      APACHE_RUN_USER: default_user
+      APACHE_RUN_GROUP: root
+      # DEBUG: 2
+      # SQL_DEBUG: 1
+    volumes:
+      - ./backend/plugins:/var/www/html/plugins:delegated
+      - ./backend/upload:/var/www/html/upload:delegated
+      - ./backend/config:/var/www/html/application/config:delegated
+    depends_on:
+      - db
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "dockerize -wait tcp://db:5432 -timeout 30s -- docker-entrypoint.sh apache2-foreground",
+      ]

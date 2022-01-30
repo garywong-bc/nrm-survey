@@ -1,6 +1,7 @@
 .DS_Store
 .env
 !backend/config/config-bcgov-*.php
+!backend/config/config-azure-*.php
 backend/config
 backend/plugins
 backend/upload
