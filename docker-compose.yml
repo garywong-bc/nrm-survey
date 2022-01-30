@@ -34,7 +34,7 @@ services:
     # TODO set outgoing smtp port to dynamically map
     ports:
       - 8080:8080
-      - 587:587
+      - ${SMTP_PORT}:${SMTP_PORT}
     # http://localhost:8080/index.php/admin/authentication/sa/login
     environment:
       DB_TYPE: ${DB_TYPE}
