@@ -8,7 +8,7 @@ services:
     hostname: db
     environment:
       POSTGRES_DB: ${DB_NAME:-limesurvey}
-      POSTGRES_USER: ${DB_USER:-limesurvey}
+      POSTGRES_USER: ${POSTGRES_USER:-limesurvey}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
     volumes:
       - ./db/data:/var/lib/postgresql/data:delegated
@@ -16,7 +16,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
-      retries: 5      
+      retries: 5
 
   app:
     # image: acspri/limesurvey
@@ -27,12 +27,12 @@ services:
     ports:
       - 8080:8080
     # http://localhost:8080/index.php/admin/authentication/sa/login
-    environment: 
+    environment:
       DB_TYPE: ${DB_TYPE:-pgsql}
       POSTGRESQL_DB_HOST: ${DB_HOST:-db}
       POSTGRESQL_PORT: ${DB_PORT:-5432}
       POSTGRESQL_DB_NAME: ${DB_NAME:-limesurvey}
-      POSTGRESQL_USERNAME: ${DB_USER:-limesurvey}
+      POSTGRESQL_USERNAME: ${POSTGRES_USER:-limesurvey}
       POSTGRESQL_PASSWORD: ${DB_PASSWORD:-example}
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}

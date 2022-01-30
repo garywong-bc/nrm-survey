@@ -9,8 +9,8 @@ services:
     hostname: db
     environment:
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-example}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./db/data:/var/lib/postgresql/data:delegated
     healthcheck:
@@ -21,7 +21,6 @@ services:
 
   # TODO set ENV for time difference -8
   # HTTPS http://localhost:8080/index.php/admin/globalsettings#security
-  # mkcert sleepdoctor.survey.devel
   # IP whitelist for login:
   app:
     # image: acspri/limesurvey
@@ -29,33 +28,34 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: app
-    hostname: sleepdoctor.devel
-    # TODO set outgoing smtp port to dynamically map
+    hostname: crs.devel
     # https://social.msdn.microsoft.com/Forums/azure/en-US/429f90c3-166b-480a-8b2f-ed9752373e18/smtp-service-on-azure?forum=WAVirtualMachinesVirtualNetwork
+    #
+    # TODO set outgoing smtp port to dynamically map
     ports:
       - 8080:8080
-      - 8443:8443
       - 587:587
     # http://localhost:8080/index.php/admin/authentication/sa/login
     environment:
-      DB_TYPE: ${DB_TYPE:-pgsql}
-      POSTGRESQL_DB_HOST: ${DB_HOST:-db}
-      POSTGRESQL_PORT: ${DB_PORT:-5432}
+      DB_TYPE: ${DB_TYPE}
+      POSTGRESQL_DB_HOST: ${DB_HOST}
+      POSTGRESQL_PORT: ${DB_PORT}
       POSTGRESQL_DB_NAME: ${DB_NAME}
-      POSTGRESQL_USERNAME: ${DB_USER}
+      POSTGRESQL_USERNAME: ${POSTGRES_USER}
       POSTGRESQL_PASSWORD: ${DB_PASSWORD}
-      DB_TABLE_PREFIX: ${DB_TABLE_PREFIX:-lime_}
-      SITENAME: ${SITENAME:-LimeSurvey}
-      ADMIN_USER: ${ADMIN_USER:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
-      ADMIN_NAME: ${ADMIN_NAME:-Administrator}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-gwong@sbd.ca}
-      BOUNCE_EMAIL: ${BOUNCE_EMAIL:-gwong@sbd.ca}
-      EMAIL_PROTOCOL: ${EMAIL_PROTOCOL:-smtp}
-      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com:587}
+      DB_TABLE_PREFIX: ${DB_TABLE_PREFIX}
+      SITENAME: ${SITENAME}
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      BOUNCE_EMAIL: ${BOUNCE_EMAIL}
+      EMAIL_PROTOCOL: ${EMAIL_PROTOCOL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_SSL: ${SMTP_SSL:-tls}
+      SMTP_SSL: ${SMTP_SSL}
       SMTP_DEBUG: ${SMTP_DEBUG:-0} # 1 for debug
       EMAIL_MAX: ${EMAIL_MAX:-50} # Per batch
       APACHE_RUN_USER: default_user
@@ -69,9 +69,9 @@ services:
       - ./backend/config:/var/www/html/application/config:delegated
     depends_on:
       - db
-    # entrypoint:
-    #   [
-    #     "/bin/sh",
-    #     "-c",
-    #     "dockerize -wait tcp://db:5432 -timeout 30s -- docker-entrypoint.sh apache2-foreground",
-    #   ]
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 30s -- docker-entrypoint.sh apache2-foreground",
+      ]

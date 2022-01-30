@@ -38,6 +38,7 @@ $debug_sql      = getenv('DEBUG_SQL');
 $bounce_email   = getenv('BOUNCE_EMAIL');
 $email_protocol = getenv('EMAIL_PROTOCOL');
 $smtp_host      = getenv('SMTP_HOST');
+$smtp_port      = getenv('SMTP_PORT');
 $smtp_user      = getenv('SMTP_USER');
 $smtp_password  = getenv('SMTP_PASSWORD');
 $smtp_ssl       = getenv('SMTP_SSL');
@@ -92,7 +93,7 @@ return array(
                 'siteadminname'     => $adminname, // The name of the site administrator
                 'emailmethod'       => $email_protocol, // mail, sendmail, smtp
                 'protocol'          => $email_protocol,
-                'emailsmtphost'     => $smtp_host, // SMTP host:port (port defaults to 25)
+                'emailsmtphost'     => $smtp_host . ':' . $smtp_port, // SMTP host:port (port defaults to 25)
                 'emailsmtpuser'     => $smtp_user,
                 'emailsmtppassword' => $smtp_password,
                 'emailsmtpssl'      => $smtp_ssl, // Set this to 'ssl' or 'tls' to use SSL/TLS for SMTP connection

@@ -48,7 +48,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     if ! [ -e application/config/config.php ]; then
         echo >&2 "Copying default container default config files into config volume..."
         cp -dR /var/lime/application/config/* application/config
-        echo >&2 "STUB: Enabling DB-specific config file ..."
+        echo >&2 "Enabling DB-specific config file ..."
         cp application/config/config-azure-$DB_TYPE.php application/config/config.php
     fi
 
