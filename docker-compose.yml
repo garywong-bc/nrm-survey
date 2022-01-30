@@ -45,6 +45,7 @@ services:
       POSTGRESQL_USERNAME: ${DB_USER}
       POSTGRESQL_PASSWORD: ${DB_PASSWORD}
       DB_TABLE_PREFIX: ${DB_TABLE_PREFIX:-lime_}
+      SITENAME: ${SITENAME:-LimeSurvey}
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
       ADMIN_NAME: ${ADMIN_NAME:-Administrator}

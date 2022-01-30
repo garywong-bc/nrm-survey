@@ -29,6 +29,7 @@ $dbpassword = getenv('POSTGRESQL_PASSWORD');
 $db_table_prefix = getenv('DB_TABLE_PREFIX');
 $connectstring = "pgsql:host=" . $dbhost . ";port=" . $dbport . ";dbname=" . $dbname;
 
+$sitename = getenv('SITENAME');
 $adminemail = getenv('ADMIN_EMAIL');
 $adminname  = getenv('ADMIN_NAME');
 
@@ -84,7 +85,8 @@ return array(
                 'debugsql' => $debug_sql, // Set this to 1 to enanble sql logging, only active when debug = 2
                 // Update default LimeSurvey config here
                 'updatable'         => false,
-                'ssl_disable_alert' => false,
+                'ssl_disable_alert' => true,
+                'sitename'          => $sitename,
                 'siteadminemail'    => $adminemail, // The default email address of the site administrator
                 'siteadminbounce'   => $bounce_email, // The default email address used for error notification of sent messages for the site administrator (Return-Path)
                 'siteadminname'     => $adminname, // The name of the site administrator

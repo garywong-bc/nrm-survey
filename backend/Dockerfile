@@ -44,7 +44,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && useradd --comment "Apache User, integrated with OpenShift default user" -g root -m -u 1001 default_user  
 
-COPY azure-config/config-*-pgsql.php /tmp
+COPY azure-config/config-*.php /tmp
 
 RUN set -x; \
     wget "$GITHUB_REPO/archive/refs/tags/$GITHUB_TAG.tar.gz" \
@@ -53,7 +53,7 @@ RUN set -x; \
     && mkdir -p /var/lime/application/config \
     && mkdir -p /var/lime/upload \
     && mkdir -p /var/lime/plugins \
-    && cp /tmp/config-*-pgsql.php /var/www/html/application/config/ \
+    && cp /tmp/config-*.php /var/www/html/application/config/ \
     && chown -R default_user:root /var/www/html \
     && chmod -R g+w /var/www/html \
     && cp -dpR /var/www/html/application/config/* /var/lime/application/config \
@@ -82,6 +82,6 @@ VOLUME ["/var/www/html/plugins"]
 VOLUME ["/var/www/html/upload"]
 VOLUME ["/var/www/html/application/config"]
 
-COPY docker-entrypoint.sh nrm-check-install.php /usr/local/bin/
+COPY docker-entrypoint.sh check-install.php /usr/local/bin/
 
 USER default_user

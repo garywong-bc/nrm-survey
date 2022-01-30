@@ -49,7 +49,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
         echo >&2 "Copying default container default config files into config volume..."
         cp -dR /var/lime/application/config/* application/config
         echo >&2 "STUB: Enabling DB-specific config file ..."
-        # cp application/config/config-azure-$DB_TYPE.php application/config/config.php
+        cp application/config/config-azure-$DB_TYPE.php application/config/config.php
     fi
 
     if ! [ -e plugins/index.html ]; then
@@ -92,7 +92,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # chown www-data:0 -R upload 
     # chown www-data:0 -R config
 
-	DBSTATUS=$(TERM=dumb php -f /usr/local/bin/nrm-check-install.php)
+	DBSTATUS=$(TERM=dumb php -f /usr/local/bin/check-install.php)
 
 	if [ "${DBSTATUS}" = "NOINSTALL" ]; then
         echo >&2 'Database not yet populated - installing Limesurvey database'
