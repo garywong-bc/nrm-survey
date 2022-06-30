@@ -1,5 +1,5 @@
 ARG DOCKER_REGISTRY=docker.io/library
-FROM $DOCKER_REGISTRY/php:7.4-apache
+FROM $DOCKER_REGISTRY/php:8.0-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
 ENV DOCKERIZE_VERSION v0.6.1
