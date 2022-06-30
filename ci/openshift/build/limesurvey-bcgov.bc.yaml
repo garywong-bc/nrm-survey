@@ -1,6 +1,6 @@
 ---
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 labels:
   app: "limesurvey"
 metadata:
@@ -27,6 +27,7 @@ objects:
         type: Git
         git:
           uri: https://github.com/garywong-bc/nrm-survey
+          ref: feature/refactor-ci
         contextDir: backend
       strategy:
         type: Docker
@@ -50,7 +51,7 @@ objects:
           cpu: 1400m
           memory: 500Mi
         requests:
-          cpu: 900m
+          cpu: 500m
           memory: 400Mi
       runPolicy: SerialLatestOnly
 parameters:
