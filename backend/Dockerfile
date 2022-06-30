@@ -22,7 +22,7 @@ RUN apt-get update \
     && docker-php-ext-configure imap --with-imap-ssl --with-kerberos \
     && docker-php-ext-install imap \
     && docker-php-ext-install sodium \
-    && pecl install mcrypt-1.0.3 \
+    && pecl install mcrypt-1.0.5 \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install exif \
     pdo pdo_pgsql pgsql \
