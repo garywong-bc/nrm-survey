@@ -1,6 +1,6 @@
 ---
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: nrmlimesurvey-app-dc
 parameters:
@@ -15,7 +15,7 @@ parameters:
   - description: Version of LimeSurvey image to be used (e.g. v.3.16).
     displayName: Version of LimeSurvey
     name: IS_VERSION
-    value: 5.1.4
+    value: 5.3.21
   - description: The short-name of the Survey Service, lower-case with hyphen.
     displayName: LimeSurvey Acronym
     name: SURVEY_NAME

@@ -1,6 +1,6 @@
 ---
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: nrmlimesurvey-postgresql-dc
 parameters:
@@ -78,7 +78,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: openshift
-              name: postgresql:9.6
+              name: postgresql:14.4
       replicas: 1
       revisionHistoryLimit: 10
       test: false

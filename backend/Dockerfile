@@ -1,11 +1,11 @@
 ARG DOCKER_REGISTRY=docker.io/library
-FROM $DOCKER_REGISTRY/php:7.4-apache
+FROM $DOCKER_REGISTRY/php:8.0-apache
 # Derived from https://github.com/adamzammit/limesurvey-docker
 
 ENV DOCKERIZE_VERSION v0.6.1
 
 ARG GITHUB_REPO=https://github.com/LimeSurvey/LimeSurvey
-ARG GITHUB_TAG=5.1.4+210824
+ARG GITHUB_TAG=5.3.21+220620
 # NOTE: Need to update the same ARGs in ../openshift/limesurvey.bc.yaml
 
 # install the PHP extensions we need
@@ -22,7 +22,7 @@ RUN apt-get update \
     && docker-php-ext-configure imap --with-imap-ssl --with-kerberos \
     && docker-php-ext-install imap \
     && docker-php-ext-install sodium \
-    && pecl install mcrypt-1.0.3 \
+    && pecl install mcrypt-1.0.5 \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install exif \
     pdo pdo_pgsql pgsql \
