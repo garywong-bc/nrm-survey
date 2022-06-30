@@ -73,16 +73,16 @@ oc -n <tools-namespace> process -f ci/openshift/limesurvey-bcgov.bc.yaml | oc -n
 oc -n <tools-namespace> start-build limesurvey-bcgov
 ```
 
-Tag the built image stream with the correct release version, matching the `major.minor` release tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey). For example, this v5.1.4 was tagged via:
+Tag the built image stream with the correct release version, matching the `major.minor` release tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey). For example, this v5.3.21 was tagged via:
 
 ```bash
-oc -n <tools-namespace> tag limesurvey-bcgov:latest limesurvey-bcgov:5.1.4
+oc -n <tools-namespace> tag limesurvey-bcgov:latest limesurvey-bcgov:5.3.21
 ```
 
-NOTE: To update our LimeSurvey image, we would update or override the Dockerfile ARG, and run the [Build](./ci/openshift/limesurvey-bcgov.bc.yaml). For example, this v5.1.4 was built with:
+NOTE: To update our LimeSurvey image, we would update or override the Dockerfile ARG, and run the [Build](./ci/openshift/limesurvey-bcgov.bc.yaml). For example, this v5.3.21 was built with:
 
 ```
-ARG GITHUB_TAG=5.1.4+210824
+ARG GITHUB_TAG=5.3.21+220620
 ```
 
 ## Deploy
@@ -184,7 +184,7 @@ After thirty seconds, the database pod should be up.
      * With parameters:
         * Namespace=245e18-tools
         * Image Stream=limesurvey-bcgov
-        * Version of LimeSurvey=5.1.4
+        * Version of LimeSurvey=5.3.21
         * LimeSurvey Acronym=acme
         * Upload Folder size=1Gi
         * Administrator Account Name=admin
@@ -278,7 +278,7 @@ Wait about 30 seconds, and/or confirm via the GUI that the DB is up:
      * With parameters:
         * Namespace=245e18-tools
         * Image Stream=limesurvey-bcgov
-        * Version of LimeSurvey=5.1.4
+        * Version of LimeSurvey=5.3.21
         * LimeSurvey Acronym=mas-test
         * Upload Folder size=1Gi
         * Administrator Account Name=admin
