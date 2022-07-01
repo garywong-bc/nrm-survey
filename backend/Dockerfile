@@ -5,7 +5,8 @@ FROM $DOCKER_REGISTRY/php:8.0-apache
 ENV DOCKERIZE_VERSION v0.6.1
 
 ARG GITHUB_REPO=https://github.com/LimeSurvey/LimeSurvey
-ARG GITHUB_TAG=5.3.21+220620
+ARG GITHUB_TAG=5.1.4+210824
+# ARG GITHUB_TAG=5.3.21+220620
 # NOTE: Need to update the same ARGs in ../openshift/limesurvey.bc.yaml
 
 # install the PHP extensions we need

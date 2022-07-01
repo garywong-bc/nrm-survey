@@ -1,0 +1,67 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+labels:
+  app: "limesurvey"
+metadata:
+  name: "nrms-limesurvey-bc"
+objects:
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: "${NAME}"
+    labels:
+      app: "${NAME}"
+    spec:
+      lookupPolicy:
+        local: false
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: "${NAME}"
+      labels:
+        buildconfig: "${NAME}"
+        app: "${NAME}"
+    spec:
+      source:
+        type: Git
+        git:
+          uri: https://github.com/garywong-bc/nrm-survey
+          ref: feature/refactor-ci
+        contextDir: backend
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile
+          buildArgs:
+            - name: DOCKER_REGISTRY
+              value: docker-remote.artifacts.developer.gov.bc.ca
+          pullSecret:
+            name: docker-pull-passthru
+      completionDeadlineSeconds: 600
+      failedBuildsHistoryLimit: 3
+      successfulBuildsHistoryLimit: 3
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${NAME}:${VERSION}"
+      postCommit: {}
+      resources:
+        limits:
+          cpu: 1400m
+          memory: 500Mi
+        requests:
+          cpu: 500m
+          memory: 400Mi
+      runPolicy: SerialLatestOnly
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the objects defined in this template.
+    required: true
+    value: limesurvey-bcgov
+  - name: VERSION
+    displayName: Image version tag
+    description: The version tag of the built image
+    required: true
+    value: latest

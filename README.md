@@ -73,13 +73,15 @@ Once deployed, any visitors to the site will require a modern browser (e.g. Edge
 
 ### Custom Image
 
-For a brand new build/image/imagestream/imagestreamtag in your new namespace, you would first create an image stream using this (forked) code (replace `<tools-namespace>` with your `*-tools` project namespace).
+For a brand new build/image/imagestream/imagestreamtag in your new namespace, you would first create an image stream using this (forked) code (replace `${TOOLS}` with your `*-tools` project namespace).
 
 ```bash
-oc -n <tools-namespace> create istag limesurvey-bcgov:latest
-oc -n <tools-namespace> process -f ci/openshift/limesurvey-bcgov.bc.yaml | oc -n <tools-namespace> apply -f -
-oc -n <tools-namespace> start-build limesurvey-bcgov
+export TOOLS=acf456-tools
+oc -n ${TOOLS} process -f ./ci/openshift/build/limesurvey-bcgov.bc.yaml | oc -n ${TOOLS} apply -f -
+oc -n ${TOOLS} create istag limesurvey-bcgov:latest
+oc -n ${TOOLS} start-build limesurvey-bcgov
 ```
+
 
 Tag the built image stream with the correct release version, matching the `major.minor` release tag at the source [repo](https://github.com/LimeSurvey/LimeSurvey). For example, this v5.3.21 was tagged via:
 
