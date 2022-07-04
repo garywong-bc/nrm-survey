@@ -53,7 +53,7 @@ objects:
       resources:
         requests:
           storage: "${DB_VOLUME_CAPACITY}"
-      storageClassName: netapp-file-standard
+      storageClassName: netapp-block-standard
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
