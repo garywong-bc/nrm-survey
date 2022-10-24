@@ -53,7 +53,7 @@ objects:
       resources:
         requests:
           storage: "${DB_VOLUME_CAPACITY}"
-      storageClassName: netapp-file-standard
+      storageClassName: netapp-block-standard
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
@@ -78,7 +78,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: openshift
-              name: postgresql:14.4
+              name: postgresql:12
       replicas: 1
       revisionHistoryLimit: 10
       test: false
